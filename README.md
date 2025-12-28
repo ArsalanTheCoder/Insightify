@@ -97,11 +97,11 @@ Insightify/
 │   ├── components/       # Reusable UI (Buttons, Inputs, Cards)
 │   ├── navigation/       # AuthNavigator, DrawerNavigator, Routes
 │   ├── screens/
-│   │   ├── Auth/         # Login, Signup, OTP Screens
+│   │   ├── Auth/         # Login, Signup Screens
 │   │   ├── Dashboard/    # Home, Analytics, Header Logic
 │   │   ├── Detection/    # Text Input, Result Screens, Analysis Logic
-│   │   └── Profile/      # Settings, User History, Account Mgmt
-│   └── utils/            # Helper functions, Constants, Theme
+│   │   └── Profile/      # Settings, User History, Account Mgmt(soon)
+│   └── utils/            # Helper functions, Constants, Theme(soon)
 ├── android/              # Native Android code
 ├── ios/                  # Native iOS code
 └── App.jsx               # Root Entry Point
