@@ -1,79 +1,88 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<div align="center">
 
-# Getting Started
+# Insightify – AI Safety & Awareness Initiative 🛡️
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+</div>
 
-## Step 1: Start the Metro Server
+## 🚀 Executive Summary
+**Insightify** is a cutting-edge mobile application designed to combat the rising tide of AI-generated fraud. By combining advanced detection tools with gamified awareness, we provide a single, user-friendly platform where awareness meets action.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+The gap in digital safety isn't just technological—it's educational. Insightify bridges this gap by offering real-time scam detection, community alerts, and interactive learning modules.
 
-To start Metro, run the following command from the _root_ of your React Native project:
+---
 
-```bash
-# using npm
-npm start
+## 📸 App Screenshots
 
-# OR using Yarn
-yarn start
-```
+### Authentication & Onboarding
+<div style="display: flex; flex-direction: row; overflow-x: auto;">
+  <img src="./screenshots/1.jpeg" width="250" alt="Login Screen" />
+  <img src="./screenshots/2.jpeg" width="250" alt="Sign Up" />
+  <img src="./screenshots/3.jpeg" width="250" alt="Security Setup" />
+</div>
 
-## Step 2: Start your Application
+### Dashboard & Navigation
+<div style="display: flex; flex-direction: row; overflow-x: auto;">
+  <img src="./screenshots/4.jpeg" width="250" alt="User Dashboard" />
+  <img src="./screenshots/5.jpeg" width="250" alt="Side Drawer Menu" />
+  <img src="./screenshots/6.jpeg" width="250" alt="Analytics Graphs" />
+</div>
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+### Detection & Features
+<div style="display: flex; flex-direction: row; overflow-x: auto;">
+  <img src="./screenshots/7.jpeg" width="180" alt="Text Analysis" />
+  <img src="./screenshots/8.jpeg" width="180" alt="Result Gauge" />
+  <img src="./screenshots/9.jpeg" width="180" alt="Community Feed" />
+  <img src="./screenshots/10.jpeg" width="180" alt="Profile Settings" />
+</div>
 
-### For Android
+---
 
-```bash
-# using npm
-npm run android
+## ✨ Key Features
 
-# OR using Yarn
-yarn android
-```
+### ✅ Currently Live (MVP)
+* **🔐 Secure Authentication:** Full Login/Signup flow powered by Firebase Auth with email validation and error handling.
+* **📊 Interactive Dashboard:** Real-time visual analytics showing global scam trends, vulnerable age groups, and personal safety scores using `react-native-chart-kit`.
+* **📂 Smart Navigation:** A custom "LinkedIn-style" Side Drawer coupled with Stack Navigation for a seamless user experience.
+* **💬 Text-Based Scam Detection:**
+    * Dedicated interface to paste suspicious SMS/Emails.
+    * AI-driven risk analysis UI (Safe / Caution / Critical).
+* **🎨 Modern UI/UX:** Clean, "Insightify Blue" theme with custom reusable components (Cards, Buttons, Inputs).
 
-### For iOS
+### 🚧 Coming Soon (Roadmap)
+- [ ] **Image OCR:** Extract text from screenshots for analysis.
+- [ ] **Deepfake Audio:** Voice frequency analysis to detect AI clones.
+- [ ] **Video Forensics:** Frame-by-frame deepfake detection.
+- [ ] **Gamification:** "Spot the Scam" quizzes and Duel Mode.
 
-```bash
-# using npm
-npm run ios
+---
 
-# OR using Yarn
-yarn ios
-```
+## 🛠️ Tech Stack
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+| Category | Technology | Version |
+| :--- | :--- | :--- |
+| **Framework** | React Native (CLI) | 0.75.5 |
+| **Language** | JavaScript / React | ES6+ |
+| **Backend** | Firebase | v21.5.0 |
+| **Navigation** | React Navigation | v6 (Stable Stack) |
+| **Charts** | React Native Chart Kit | v6.12.0 |
+| **Build Tool** | Gradle | 8.10.2 |
+| **Target SDK** | Android 15 | API 35 |
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+---
 
-## Step 3: Modifying your App
+## 📂 Project Structure
+We follow a Feature-First modular architecture for scalability.
 
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+```text
+Insightify/
+├── src/
+│   ├── components/       # Reusable UI (Buttons, Inputs, Cards)
+│   ├── navigation/       # AuthNavigator, DrawerNavigator
+│   ├── screens/
+│   │   ├── Auth/         # Login, Signup, OTP
+│   │   ├── Dashboard/    # Home, Analytics, Header
+│   │   ├── Detection/    # Text Input, Result Screens
+│   │   └── Profile/      # Settings, User History
+│   └── utils/            # Helper functions
+├── android/              # Native Android code
+└── App.jsx               # Root Entry Point
