@@ -41,17 +41,17 @@ Our mission is to offer **real-time scam detection**, **community alerts**, and 
 ### 🔐 Authentication & Onboarding
 | Login Screen | Sign Up | Security Setup |
 |:---:|:---:|:---:|
-| <img src="./screenshots/1.jpeg" width="250" alt="Login" /> | <img src="./screenshots/2.jpeg" width="250" alt="SignUp" /> | <img src="./screenshots/3.jpeg" width="250" alt="Security" /> |
+| <img src="https://github.com/user-attachments/assets/a063ce50-f9e2-4b78-bccd-727e0c2609e6" width="250" alt="Login" /> | <img src="https://github.com/user-attachments/assets/e12dffb1-c007-4520-98a8-6ea5e54d5bdf" width="250" alt="SignUp" /> | <img src="https://github.com/user-attachments/assets/0ee75e1c-c66d-489a-95da-19da2ff93e5c" width="250" alt="Security" /> |
 
 ### 📊 Dashboard & Navigation
 | User Dashboard | Side Drawer Menu | Analytics Graphs |
 |:---:|:---:|:---:|
-| <img src="./screenshots/4.jpeg" width="250" alt="Dashboard" /> | <img src="./screenshots/5.jpeg" width="250" alt="Drawer" /> | <img src="./screenshots/6.jpeg" width="250" alt="Analytics" /> |
+| <img src="https://github.com/user-attachments/assets/04e87734-6a4d-43be-9118-1efd371ddc12" width="250" alt="Dashboard" /> | <img src="https://github.com/user-attachments/assets/be7d192f-098d-43bf-8968-bd5508c782b9" width="250" alt="Drawer" /> | <img src="https://github.com/user-attachments/assets/0124662e-49d4-46d1-820a-9e21c5ffdbed" width="250" alt="Analytics" /> |
 
 ### 🛡️ Detection & Features
 | Text Analysis | Result Gauge | Community Feed | Profile Settings |
 |:---:|:---:|:---:|:---:|
-| <img src="./screenshots/7.jpeg" width="180" alt="Text Analysis" /> | <img src="./screenshots/8.jpeg" width="180" alt="Gauge" /> | <img src="./screenshots/9.jpeg" width="180" alt="Feed" /> | <img src="./screenshots/10.jpeg" width="180" alt="Profile" /> |
+| <img src="https://github.com/user-attachments/assets/072f21c0-73ed-4b76-8908-fd572af2f5aa" width="180" alt="Text Analysis" /> | <img src="https://github.com/user-attachments/assets/ca0895b0-d8f6-4055-b508-857ce8485b92" width="180" alt="Gauge" /> | <img src="https://github.com/user-attachments/assets/6bcc4a0c-cb60-470b-b3f0-7f54b718d770" width="180" alt="Feed" /> | <img src="https://github.com/user-attachments/assets/3e723350-fc28-4e92-80c4-89f55babfebb" width="180" alt="Profile" /> |
 
 ---
 
