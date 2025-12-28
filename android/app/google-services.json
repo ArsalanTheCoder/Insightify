@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "241570122076",
+    "project_id": "insightify-5c241",
+    "storage_bucket": "insightify-5c241.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241570122076:android:df96385f3c79acdbbdd999",
+        "android_client_info": {
+          "package_name": "com.insightify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjNgg4ikn7sII5YhRAIhJSj66EQoOIbsw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
