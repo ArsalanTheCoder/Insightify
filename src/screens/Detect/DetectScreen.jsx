@@ -24,12 +24,13 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 
 import { analyzeText } from '../../services/scamApi';
+import AccessibilitySetupBanner from '../../components/AccessibilitySetupBanner';
 
 const { NotificationModule } = NativeModules;
 const notificationEmitter = new NativeEventEmitter(NotificationModule);
 
 // 🔒 LIMIT: 4MB (Safe for Hackathon Backend)
-const MAX_FILE_SIZE = 4 * 1024 * 1024; 
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 function hashStringToId(s) {
   if (!s) return 'no-id';
@@ -44,22 +45,23 @@ function hashStringToId(s) {
 const DetectScreen = ({ navigation, route }) => {
   // --- STATE ---
   const [inputText, setInputText] = useState('');
-  
+
   // Two loading states: one for AI analysis, one for File Processing
-  const [analyzing, setAnalyzing] = useState(false); 
+  const [analyzing, setAnalyzing] = useState(false);
   const [processingFile, setProcessingFile] = useState(false);
 
   // Media State
   const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedMedia, setSelectedMedia] = useState(null); 
+  const [selectedMedia, setSelectedMedia] = useState(null);
   // { uri, type: 'image'|'video'|'audio', base64, mimeType, name }
 
   // --- REFS (Original Logic) ---
   const lastPayloadIdRef = useRef(null);
   const lastProcessedAtRef = useRef(0);
+  const autoAnalyzeRef = useRef(false);
 
-  // --- Notification Logic (Unchanged) ---
-  const handlePayload = (payload) => {
+  // --- Notification Logic ---
+  const handlePayload = (payload, shouldAutoAnalyze = false) => {
     try {
       const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
       if (!data) return;
@@ -74,6 +76,11 @@ const DetectScreen = ({ navigation, route }) => {
         setInputText(text);
         lastPayloadIdRef.current = id;
         lastProcessedAtRef.current = now;
+
+        // Auto-trigger Gemini analysis for notification-sourced messages
+        if (shouldAutoAnalyze) {
+          autoAnalyzeRef.current = true;
+        }
       }
     } catch (e) {
       console.warn('Invalid notification payload', e);
@@ -84,12 +91,26 @@ const DetectScreen = ({ navigation, route }) => {
     (async () => {
       try {
         const launchPayload = await NotificationModule.getLaunchPayload();
-        if (launchPayload) handlePayload(launchPayload);
+        if (launchPayload) handlePayload(launchPayload, true);
       } catch (e) { console.warn('getLaunchPayload error', e); }
     })();
-    const sub = notificationEmitter.addListener('NotificationReceived', handlePayload);
+    const sub = notificationEmitter.addListener('NotificationReceived', (raw) => {
+      handlePayload(raw, true);
+    });
     return () => sub.remove();
   }, []);
+
+  // Auto-analyze when text arrives from notification
+  useEffect(() => {
+    if (autoAnalyzeRef.current && inputText.trim().length > 0 && !analyzing) {
+      autoAnalyzeRef.current = false;
+      // Small delay to let the UI render with the pasted text first
+      const timer = setTimeout(() => {
+        handleAnalyzePress();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [inputText]);
 
   useEffect(() => {
     const navPayload = route?.params;
@@ -117,7 +138,7 @@ const DetectScreen = ({ navigation, route }) => {
     setMenuOpen(false);
     // Images are usually safe, but we limit quality to 0.5 to keep base64 small
     const options = { mediaType: 'photo', includeBase64: true, quality: 0.5 };
-    
+
     launchImageLibrary(options, (response) => {
       if (response.didCancel) return;
       if (response.errorCode) {
@@ -126,7 +147,7 @@ const DetectScreen = ({ navigation, route }) => {
       }
       if (response.assets?.length > 0) {
         const asset = response.assets[0];
-        
+
         if (!checkSize(asset.fileSize)) return;
 
         setSelectedMedia({
@@ -149,12 +170,12 @@ const DetectScreen = ({ navigation, route }) => {
         const asset = response.assets[0];
 
         if (!checkSize(asset.fileSize)) return;
-        
+
         setProcessingFile(true); // Start Spinner
         try {
           // Read File
           const base64 = await RNFS.readFile(asset.uri, 'base64');
-          
+
           setSelectedMedia({
             uri: asset.uri,
             type: 'video',
@@ -181,16 +202,16 @@ const DetectScreen = ({ navigation, route }) => {
       if (!checkSize(res.size)) return;
 
       setProcessingFile(true); // Start Spinner
-      
+
       const uriToRead = res.fileCopyUri || res.uri;
       const base64 = await RNFS.readFile(uriToRead, 'base64');
-      
+
       // Fix MIME type for Android
       let finalMime = res.type;
       if (!finalMime || finalMime === 'application/octet-stream') {
-         if (res.name.endsWith('.mp3')) finalMime = 'audio/mp3';
-         if (res.name.endsWith('.wav')) finalMime = 'audio/wav';
-         if (res.name.endsWith('.m4a')) finalMime = 'audio/mp4';
+        if (res.name.endsWith('.mp3')) finalMime = 'audio/mp3';
+        if (res.name.endsWith('.wav')) finalMime = 'audio/wav';
+        if (res.name.endsWith('.m4a')) finalMime = 'audio/mp4';
       }
 
       setSelectedMedia({
@@ -229,13 +250,13 @@ const DetectScreen = ({ navigation, route }) => {
 
       navigation.navigate('ResultScreen', {
         content: inputText,
-        media: selectedMedia, 
+        media: selectedMedia,
         result,
       });
-      
+
       setInputText('');
       setSelectedMedia(null);
-      
+
     } catch (error) {
       console.warn('Analyze error:', error);
       Alert.alert('Error', error?.message || 'Something went wrong.');
@@ -250,7 +271,7 @@ const DetectScreen = ({ navigation, route }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#EFF6FF" />
+      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" translucent={false} />
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Header (Original) */}
@@ -277,59 +298,62 @@ const DetectScreen = ({ navigation, route }) => {
           </Text>
         </View>
 
+        {/* Accessibility Service Setup Banner */}
+        <AccessibilitySetupBanner />
+
         {/* Media Preview Card */}
         {selectedMedia && (
-            <View style={styles.mediaPreviewCard}>
-              <View style={styles.mediaHeaderRow}>
-                 <Text style={styles.mediaTitle}>Ready to Analyze</Text>
-                 <TouchableOpacity onPress={handleClearMedia}>
-                    <Ionicons name="close-circle" size={24} color="#EF4444" />
-                 </TouchableOpacity>
-              </View>
-
-              {selectedMedia.type === 'image' && (
-                <Image source={{ uri: selectedMedia.uri }} style={styles.previewImage} resizeMode="cover" />
-              )}
-              
-              {selectedMedia.type === 'video' && (
-                <View style={styles.filePlaceholder}>
-                  <Ionicons name="videocam" size={40} color="#F59E0B" />
-                  <Text style={styles.fileText}>Video File Selected</Text>
-                </View>
-              )}
-
-              {selectedMedia.type === 'audio' && (
-                <View style={styles.filePlaceholder}>
-                  <Ionicons name="musical-notes" size={40} color="#8B5CF6" />
-                  <Text style={styles.fileText}>{selectedMedia.name || "Audio File"}</Text>
-                </View>
-              )}
+          <View style={styles.mediaPreviewCard}>
+            <View style={styles.mediaHeaderRow}>
+              <Text style={styles.mediaTitle}>Ready to Analyze</Text>
+              <TouchableOpacity onPress={handleClearMedia}>
+                <Ionicons name="close-circle" size={24} color="#EF4444" />
+              </TouchableOpacity>
             </View>
+
+            {selectedMedia.type === 'image' && (
+              <Image source={{ uri: selectedMedia.uri }} style={styles.previewImage} resizeMode="cover" />
+            )}
+
+            {selectedMedia.type === 'video' && (
+              <View style={styles.filePlaceholder}>
+                <Ionicons name="videocam" size={40} color="#F59E0B" />
+                <Text style={styles.fileText}>Video File Selected</Text>
+              </View>
+            )}
+
+            {selectedMedia.type === 'audio' && (
+              <View style={styles.filePlaceholder}>
+                <Ionicons name="musical-notes" size={40} color="#8B5CF6" />
+                <Text style={styles.fileText}>{selectedMedia.name || "Audio File"}</Text>
+              </View>
+            )}
+          </View>
         )}
       </ScrollView>
 
       {/* --- INPUT BAR --- */}
       <View style={styles.bottomInputWrapper}>
-        
+
         {/* Pop-up Menu */}
         {menuOpen && (
           <View style={styles.attachMenu}>
             <TouchableOpacity style={styles.menuItem} onPress={handlePickImage}>
-              <View style={[styles.menuIcon, {backgroundColor: '#10B981'}]}>
+              <View style={[styles.menuIcon, { backgroundColor: '#10B981' }]}>
                 <Ionicons name="image" size={18} color="#fff" />
               </View>
               <Text style={styles.menuLabel}>Photo</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem} onPress={handlePickVideo}>
-              <View style={[styles.menuIcon, {backgroundColor: '#F59E0B'}]}>
+              <View style={[styles.menuIcon, { backgroundColor: '#F59E0B' }]}>
                 <Ionicons name="videocam" size={18} color="#fff" />
               </View>
               <Text style={styles.menuLabel}>Video (Short)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem} onPress={handlePickAudio}>
-              <View style={[styles.menuIcon, {backgroundColor: '#8B5CF6'}]}>
+              <View style={[styles.menuIcon, { backgroundColor: '#8B5CF6' }]}>
                 <Ionicons name="musical-notes" size={18} color="#fff" />
               </View>
               <Text style={styles.menuLabel}>Audio</Text>
@@ -338,45 +362,45 @@ const DetectScreen = ({ navigation, route }) => {
         )}
 
         <View style={styles.inputRow}>
-            {/* (+) Button */}
-            <TouchableOpacity 
-              style={[styles.plusButton, menuOpen && styles.plusButtonActive]} 
-              onPress={() => setMenuOpen(!menuOpen)}
-            >
-               <Ionicons name={menuOpen ? "close" : "add"} size={24} color="#555" />
-            </TouchableOpacity>
+          {/* (+) Button */}
+          <TouchableOpacity
+            style={[styles.plusButton, menuOpen && styles.plusButtonActive]}
+            onPress={() => setMenuOpen(!menuOpen)}
+          >
+            <Ionicons name={menuOpen ? "close" : "add"} size={24} color="#555" />
+          </TouchableOpacity>
 
-            {/* Input Field */}
-            <TextInput
-              style={styles.chatInput}
-              placeholder={processingFile ? "Processing file..." : "Check message, link, or scam..."}
-              placeholderTextColor="#9CA3AF"
-              multiline
-              value={inputText}
-              onChangeText={setInputText}
-              editable={!processingFile} // Disable while processing
-            />
+          {/* Input Field */}
+          <TextInput
+            style={styles.chatInput}
+            placeholder={processingFile ? "Processing file..." : "Check message, link, or scam..."}
+            placeholderTextColor="#9CA3AF"
+            multiline
+            value={inputText}
+            onChangeText={setInputText}
+            editable={!processingFile} // Disable while processing
+          />
 
-            {/* Action Button */}
-            {processingFile ? (
-               <View style={styles.micButton}>
-                 <ActivityIndicator size="small" color="#2563EB" />
-               </View>
+          {/* Action Button */}
+          {processingFile ? (
+            <View style={styles.micButton}>
+              <ActivityIndicator size="small" color="#2563EB" />
+            </View>
+          ) : (
+            (inputText.length > 0 || selectedMedia) ? (
+              <TouchableOpacity style={styles.sendButton} onPress={handleAnalyzePress} disabled={analyzing}>
+                {analyzing ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Ionicons name="arrow-up" size={20} color="#fff" />
+                )}
+              </TouchableOpacity>
             ) : (
-              (inputText.length > 0 || selectedMedia) ? (
-                <TouchableOpacity style={styles.sendButton} onPress={handleAnalyzePress} disabled={analyzing}>
-                  {analyzing ? (
-                      <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                      <Ionicons name="arrow-up" size={20} color="#fff" />
-                  )}
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity style={styles.micButton} onPress={() => Alert.alert('Voice', 'Use the (+) button to upload Audio files.')}>
-                  <Ionicons name="mic" size={24} color="#111" />
-                </TouchableOpacity>
-              )
-            )}
+              <TouchableOpacity style={styles.micButton} onPress={() => Alert.alert('Voice', 'Use the (+) button to upload Audio files.')}>
+                <Ionicons name="mic" size={24} color="#111" />
+              </TouchableOpacity>
+            )
+          )}
         </View>
       </View>
 
@@ -387,7 +411,7 @@ const DetectScreen = ({ navigation, route }) => {
 /* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  scrollContainer: { padding: 20, paddingBottom: 100 }, 
+  scrollContainer: { padding: 20, paddingBottom: 100 },
 
   topHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   topTitle: { fontSize: 24, fontWeight: '800', color: '#1E293B' },

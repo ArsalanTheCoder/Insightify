@@ -67,7 +67,7 @@ const FEED_DATA = [
     image: require('../../../assets/images/scam4.jpeg'),
     isVerified: true,
   },
-  
+
   {
     id: '5',
     time: '6 hours ago',
@@ -194,7 +194,7 @@ const FEED_DATA = [
 export default function FeedScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={false} />
 
       <View style={styles.topBar}>
         <View>

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Insightify</string>
+    <string name="accessibility_description">Insightify Security Assistant monitors messaging apps (WhatsApp, Telegram, Instagram, SMS) for potential scam messages, phishing links, and suspicious content to protect you from fraud. This service only reads message text to detect threats — it does not store, share, or modify your messages.</string>
 </resources>

@@ -42,7 +42,7 @@ class MainActivity : ReactActivity() {
         prefs.edit().putString(KEY_LAUNCH_PAYLOAD, payload).apply()
 
         // rebroadcast so native receiver (NotificationModule) can pick it up immediately
-        val b = Intent(NotifListenerService.ACTION_NOTIFICATION)
+        val b = Intent(NotificationModule.ACTION_NOTIFICATION)
         b.putExtra("payload", payload)
         sendBroadcast(b)
       }

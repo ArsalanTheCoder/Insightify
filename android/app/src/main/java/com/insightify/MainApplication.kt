@@ -19,6 +19,8 @@ class MainApplication : Application(), ReactApplication {
                 PackageList(this).packages.apply {
                     // 🔥 REQUIRED: register our notification bridge
                     add(NotificationPackage())
+                    // 🛡️ REQUIRED: register accessibility service bridge
+                    add(AccessibilityPackage())
                 }
 
             override fun getJSMainModuleName(): String = "index"
