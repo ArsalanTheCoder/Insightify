@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FeedCard from './components/FeedCard';
+import Screen from '../../components/layout/Screen';
 
 // --- MOCK DATA WITH LOCAL JPEG ASSETS ---
 // Path: 3 levels up to root from src/screens/Feed/
@@ -193,7 +194,7 @@ const FEED_DATA = [
 
 export default function FeedScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen backgroundColor="#F4F6F8" padded={false} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <View style={styles.topBar}>
@@ -219,7 +220,7 @@ export default function FeedScreen() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 

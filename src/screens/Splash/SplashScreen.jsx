@@ -5,30 +5,41 @@ import {
   StyleSheet,
   Animated,
   StatusBar,
+  Image,
+  Easing,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function SplashScreen({ navigation }) {
   const opacity = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(0.9)).current;
+  const scale = useRef(new Animated.Value(0.6)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 700,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scale, {
-        toValue: 1,
-        friction: 6,
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scale, {
+          toValue: 1,
+          friction: 5,
+          tension: 90,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 600,
+        easing: Easing.out(Easing.exp),
         useNativeDriver: true,
       }),
     ]).start();
 
     const timer = setTimeout(() => {
       navigation.replace('Onboarding');
-    }, 2200);
+    }, 2800);
 
     return () => clearTimeout(timer);
   }, []);
@@ -37,74 +48,101 @@ export default function SplashScreen({ navigation }) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#2563EB" />
 
+      {/* MAIN CONTENT */}
+      <View style={styles.center}>
+        {/* LOGO */}
+        <Animated.View
+          style={[
+            styles.logoWrap,
+            { opacity, transform: [{ scale }] },
+          ]}
+        >
+          <Image
+            source={require('../../../assets/images/insightify.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </Animated.View>
+
+        {/* NAME + TAGLINE (CLOSER TO LOGO) */}
+        <Animated.View
+          style={{
+            opacity,
+            transform: [{ translateY }],
+            alignItems: 'center',
+            marginTop: -6, // pulls text closer into logo
+          }}
+        >
+          <Text style={styles.appName}>Insightify</Text>
+          <Text style={styles.tagline}>
+            AI-Powered Scam Detection
+          </Text>
+        </Animated.View>
+      </View>
+
+      {/* FOOTER (SLIGHTLY UP) */}
       <Animated.View
         style={[
-          styles.center,
-          { opacity, transform: [{ scale }] },
+          styles.footer,
+          { opacity, transform: [{ translateY }] },
         ]}
       >
-        <View style={styles.iconWrap}>
-          <Icon name="shield-checkmark-outline" size={42} color="#2563EB" />
-        </View>
-
-        <Text style={styles.logo}>Insightify</Text>
-        <Text style={styles.tagline}>AI-Powered Scam Detection</Text>
+        <Text style={styles.footerText}>
+          Protecting humans from digital deception
+        </Text>
       </Animated.View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Protecting you intelligently</Text>
-      </View>
     </View>
   );
 }
+
+/* ---------------- STYLES ---------------- */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#2563EB',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   center: {
-    alignItems: 'center',
-  },
-
-  iconWrap: {
-    width: 84,
-    height: 84,
-    borderRadius: 24,
-    backgroundColor: '#fff',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 6,
+    paddingBottom: 10, // lifts whole block slightly up
+  },
+
+  logoWrap: {
+    marginBottom: 0.01, // very small gap after logo
   },
 
   logo: {
-    fontSize: 34,
+    width: 260,
+    height: 260,
+  },
+
+  appName: {
+    fontSize: 40,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
 
   tagline: {
-    marginTop: 8,
+    marginTop: 4,
     fontSize: 14,
     color: '#DBEAFE',
+    letterSpacing: 0.4,
   },
 
   footer: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 48, // lifted up from bottom
+    width: '100%',
+    alignItems: 'center',
   },
 
   footerText: {
     fontSize: 12,
     color: '#BFDBFE',
+    letterSpacing: 0.3,
   },
 });

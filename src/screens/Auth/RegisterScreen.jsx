@@ -9,9 +9,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import Screen from '../../components/layout/Screen';
+import AuthHeader from '../../components/auth/AuthHeader';
 import AuthInput from '../../components/auth/AuthInput';
 import PrimaryButton from '../../components/auth/PrimaryButton';
 import SocialAuthRow from '../../components/auth/SocialAuthRow';
@@ -25,15 +28,15 @@ export default function RegisterScreen({ navigation }) {
   const [twoStep, setTwoStep] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  // ✅ REGISTER HANDLER (THIS WAS MISSING)
-  const handleRegister = async () => {
-    if (!fullName || !email || !password || !confirm) {
-      Alert.alert('Error', 'Please fill all fields');
-      return;
-    }
+  const canSubmit =
+    fullName.trim().length > 2 &&
+    email.trim().length > 5 &&
+    password.length >= 6 &&
+    password === confirm;
 
-    if (password !== confirm) {
-      Alert.alert('Error', 'Passwords do not match');
+  const handleRegister = async () => {
+    if (!canSubmit) {
+      Alert.alert('Check details', 'Please fill fields correctly');
       return;
     }
 
@@ -43,49 +46,46 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert('Success', 'Account created successfully');
       navigation.replace('Login');
     } catch (error) {
-      Alert.alert('Registration Failed', error.message);
+      Alert.alert('Registration Failed', error?.message || 'Try again');
     } finally {
       setLoading(false);
     }
   };
 
   return (
+     <Screen padded backgroundColor="#FFFFFF">
     <KeyboardAvoidingView
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header: brand + small intro */}
+        <AuthHeader
+          brand="Insightify"
+          subtitleLine1="Create Your Secure Account"
+          subtitleLine2="Join Insightify and stay ahead of AI scams"
+        />
 
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <Icon name="shield-outline" size={24} />
-            <Text style={styles.brand}>Insightify</Text>
-          </View>
-          <Text style={styles.muted}>AI-Powered Scam Detection</Text>
-        </View>
-
-        {/* TITLE */}
-        <Text style={styles.title}>Create Your Secure Account</Text>
-        <Text style={styles.subtitle}>
-          Join Insightify and stay ahead of AI scams
-        </Text>
-
-        {/* INPUTS */}
+        {/* Form */}
         <View style={styles.form}>
           <AuthInput
             placeholder="Full Name"
             value={fullName}
             onChangeText={setFullName}
+            autoCapitalize="words"
           />
           <AuthInput
             placeholder="Email Address"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            autoCapitalize="none"
           />
           <AuthInput
-            placeholder="Password"
+            placeholder="Password (min 6 chars)"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -97,28 +97,39 @@ export default function RegisterScreen({ navigation }) {
             secureTextEntry
           />
 
-          {/* 2 STEP */}
+          {/* 2-step toggle */}
           <View style={styles.switchRow}>
             <Switch
               value={twoStep}
               onValueChange={setTwoStep}
-              trackColor={{ false: '#ccc', true: '#7fb3ff' }}
+              trackColor={{ false: '#d1d5db', true: '#7fb3ff' }}
+              thumbColor={twoStep ? '#1e40af' : '#fff'}
             />
             <Text style={styles.switchText}>
-              Enable 2 Step Verification?
+              Enable 2-Step Verification?
               <Text style={styles.recommended}> (Recommended)</Text>
             </Text>
           </View>
 
-          {/* ✅ BUTTON CONNECTED */}
+          {/* CTA */}
           <PrimaryButton
             title={loading ? 'Creating Account...' : 'Sign Up Securely'}
             onPress={handleRegister}
-            disabled={loading}
+            disabled={!canSubmit || loading}
+            loading={loading}
           />
+
+          {/* <View style={styles.hints}>
+            <Icon name="shield-checkmark-outline" size={14} color="#2563EB" />
+            <Text style={styles.hintText}>
+              {'  '}
+              Use a strong, unique password. We protect your data with end-to-end
+              encryption.
+            </Text>
+          </View> */}
         </View>
 
-        {/* SIGN IN */}
+        {/* Already have account */}
         <View style={styles.bottomRow}>
           <Text style={styles.small}>Already have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -126,48 +137,74 @@ export default function RegisterScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* SOCIAL */}
-        <SocialAuthRow />
+        {/* social */}
+        <SocialAuthRow
+          onGoogle={() => Alert.alert('Google Sign In')}
+          onApple={() => Alert.alert('Apple Sign In')}
+          onLinkedIn={() => Alert.alert('LinkedIn Sign In')}
+        />
 
-        {/* PRIVACY */}
+        {/* privacy */}
         <View style={styles.privacy}>
-          <Icon name="lock-closed-outline" size={14} color="#9b9b9b" />
+          <Icon name="lock-closed-outline" size={14} color="#6b7280" />
           <Text style={styles.privacyText}>
-            {' '}Your privacy is protected by end-to-end encryption
+            {'  '}Your privacy is protected by end-to-end encryption
           </Text>
         </View>
 
+        <View style={{ height: 36 }} />
       </ScrollView>
     </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#fff' },
-  container: { padding: 22 },
+  screen: { flex: 1, backgroundColor: '#F8FAFF' },
+  container: {
+    paddingTop: 28,
+    paddingBottom: 24,
+  },
 
-  header: { marginBottom: 30 },
-  logoRow: { flexDirection: 'row', alignItems: 'center' },
-  brand: { fontSize: 18, fontWeight: '700', marginLeft: 10 },
-  muted: { fontSize: 12, color: '#999', marginTop: 6 },
+  form: { marginTop: 6, marginBottom: 8 },
 
-  title: { fontSize: 24, fontWeight: '800', marginBottom: 6 },
-  subtitle: { fontSize: 14, color: '#7a7a7a', marginBottom: 24 },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  switchText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#374151',
+    flex: 1,
+  },
+  recommended: { color: '#2563EB', fontWeight: '700' },
 
-  form: { marginBottom: 16 },
-
-  switchRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 },
-  switchText: { marginLeft: 10, fontSize: 13, color: '#666', flex: 1 },
-  recommended: { color: '#1976d2', fontWeight: '700' },
+  hints: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  hintText: {
+    color: '#475569',
+    fontSize: 13,
+    flex: 1,
+    lineHeight: 18,
+  },
 
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 14,
+    marginTop: 18,
   },
-  small: { fontSize: 13, color: '#666' },
-  link: { fontSize: 13, color: '#1976d2', fontWeight: '700' },
+  small: { fontSize: 13, color: '#6B7280' },
+  link: { fontSize: 13, color: '#2563EB', fontWeight: '700' },
 
-  privacy: { flexDirection: 'row', alignItems: 'center', marginTop: 18 },
-  privacyText: { fontSize: 12, color: '#9b9b9b' },
+  privacy: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 18,
+  },
+  privacyText: { fontSize: 12, color: '#6B7280' },
 });

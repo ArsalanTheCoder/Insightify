@@ -1,3 +1,4 @@
+// src/screens/Auth/ForgotPasswordScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -9,8 +10,9 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-
 import Icon from 'react-native-vector-icons/Ionicons';
+import Screen from '../../components/layout/Screen';
+
 import AuthInput from '../../components/auth/AuthInput';
 import PrimaryButton from '../../components/auth/PrimaryButton';
 import { resetPassword } from '../../services/authService';
@@ -19,10 +21,9 @@ export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ✅ RESET PASSWORD HANDLER
-  const handleResetPassword = async () => {
+  const handleReset = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
+      Alert.alert('Error', 'Please enter your email');
       return;
     }
 
@@ -31,17 +32,18 @@ export default function ForgotPasswordScreen({ navigation }) {
       await resetPassword(email.trim());
       Alert.alert(
         'Email Sent',
-        'A password reset link has been sent to your email address'
+        'Password reset link has been sent to your email'
       );
       navigation.goBack();
-    } catch (error) {
-      Alert.alert('Reset Failed', error.message);
+    } catch (err) {
+      Alert.alert('Failed', err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <Screen padded edges={['top', 'bottom']} backgroundColor="#FFFFFF"> 
     <KeyboardAvoidingView
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -50,92 +52,97 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         {/* HEADER */}
         <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <Icon name="shield-outline" size={24} />
-            <Text style={styles.brand}>Insightify</Text>
-          </View>
-          <Text style={styles.muted}>AI-Powered Scam Detection</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back" size={24} color="#2563EB" />
+          </TouchableOpacity>
         </View>
 
         {/* TITLE */}
         <Text style={styles.title}>Forgot Password?</Text>
         <Text style={styles.subtitle}>
-          Enter your email address and we’ll send you a link to reset your password.
+          Enter your email and we’ll send you a reset link
         </Text>
 
-        {/* INPUT */}
-        <View style={styles.form}>
-          <AuthInput
-            placeholder="Email Address"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
+        {/* FORM */}
+        <AuthInput
+          placeholder="Email Address"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
 
-          {/* ✅ BUTTON CONNECTED */}
-          <PrimaryButton
-            title={loading ? 'Sending...' : 'Send Reset Link'}
-            onPress={handleResetPassword}
-            disabled={loading}
-          />
-        </View>
+        <PrimaryButton
+          title={loading ? 'Sending...' : 'Send Reset Link'}
+          onPress={handleReset}
+          disabled={loading}
+        />
 
-        {/* BACK TO LOGIN */}
-        <View style={styles.bottomRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.link}>← Back to Login</Text>
-          </TouchableOpacity>
-        </View>
+        {/* BACK */}
+        <TouchableOpacity
+          style={styles.backLogin}
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name="arrow-back" size={14} color="#2563EB" />
+          <Text style={styles.backText}> Back to Login</Text>
+        </TouchableOpacity>
 
         {/* PRIVACY */}
         <View style={styles.privacy}>
-          <Icon name="lock-closed-outline" size={14} color="#9b9b9b" />
+          <Icon name="lock-closed-outline" size={14} color="#94A3B8" />
           <Text style={styles.privacyText}>
-            {' '}Your privacy is protected by end-to-end encryption
+            {' '}Your data is encrypted and secure
           </Text>
         </View>
 
       </ScrollView>
     </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
+/* ---------------- STYLES ---------------- */
+
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#fff' },
-  container: { padding: 22 },
+  screen: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: {
+    paddingTop: 28,
+    paddingBottom: 24,
+  },
 
   header: { marginBottom: 30 },
-  logoRow: { flexDirection: 'row', alignItems: 'center' },
-  brand: { fontSize: 18, fontWeight: '700', marginLeft: 10 },
-  muted: { fontSize: 12, color: '#999', marginTop: 6 },
 
-  title: { fontSize: 26, fontWeight: '800', marginBottom: 8 },
+  title: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#0F172A',
+    marginBottom: 6,
+  },
   subtitle: {
     fontSize: 14,
-    color: '#7a7a7a',
+    color: '#64748B',
     marginBottom: 26,
-    lineHeight: 20,
   },
 
-  form: { marginBottom: 16 },
-
-  bottomRow: {
-    marginTop: 18,
+  backLogin: {
+    marginTop: 20,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  link: {
-    fontSize: 14,
-    color: '#1976d2',
+  backText: {
+    fontSize: 16,
     fontWeight: '700',
+    color: '#2563EB',
   },
 
   privacy: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 26,
+    justifyContent: 'center',
+    marginTop: 22,
   },
   privacyText: {
     fontSize: 12,
-    color: '#9b9b9b',
+    color: '#94A3B8',
   },
 });

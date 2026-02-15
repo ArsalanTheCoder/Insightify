@@ -14,6 +14,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Screen from '../../components/layout/Screen';
 
 const { width } = Dimensions.get('window');
 
@@ -108,7 +109,7 @@ export default function ResultScreen({ route, navigation }) {
 
   /* ---------------- UI ---------------- */
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* HEADER */}
@@ -210,7 +211,7 @@ export default function ResultScreen({ route, navigation }) {
             </TouchableOpacity>
         )}
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 

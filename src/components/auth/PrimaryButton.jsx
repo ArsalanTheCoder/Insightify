@@ -1,18 +1,24 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function PrimaryButton({ title, onPress, disabled = false }) {
+export default function PrimaryButton({ title, onPress, disabled = false, loading = false }) {
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[styles.btn, disabled && styles.disabled]}
-      activeOpacity={0.85}
-      disabled={disabled}
+      activeOpacity={0.9}
+      disabled={disabled || loading}
     >
       <View style={styles.row}>
-        <Text style={styles.text}>{title}</Text>
-        <Icon name="chevron-forward" size={20} color="#fff" style={{ marginLeft: 8 }} />
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <>
+            <Text style={styles.text}>{title}</Text>
+            <Icon name="chevron-forward" size={20} color="#fff" style={{ marginLeft: 8 }} />
+          </>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -20,21 +26,21 @@ export default function PrimaryButton({ title, onPress, disabled = false }) {
 
 const styles = StyleSheet.create({
   btn: {
-    height: 50,
-    backgroundColor: '#2b86ff',
-    borderRadius: 8,
+    height: 54,
+    backgroundColor: '#2563EB',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#2b86ff',
+    marginTop: 8,
+    shadowColor: '#2563EB',
     shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 18,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 12 },
+    shadowRadius: 24,
+    elevation: 6,
     paddingHorizontal: 16,
   },
   disabled: {
-    opacity: 0.65,
+    opacity: 0.6,
   },
   row: {
     flexDirection: 'row',
@@ -42,7 +48,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontWeight: '700',
+    fontWeight: '800',
     fontSize: 16,
   },
 });

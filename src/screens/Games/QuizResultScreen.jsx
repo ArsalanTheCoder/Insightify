@@ -8,67 +8,109 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function QuizResultScreen({ navigation }) {
-  // Mock result data (later from backend)
-  const RESULT = {
-    score: 4,
-    total: 5,
-    xpEarned: 40,
-    correct: 4,
-    wrong: 1,
-  };
+export default function QuizResultScreen({ route, navigation }) {
+  /* ---------------- REAL DATA FROM QUIZ ---------------- */
 
-  const accuracy = Math.round((RESULT.correct / RESULT.total) * 100);
+  const {
+    total = 0,
+    correct = 0,
+    wrong = 0,
+    xpEarned = 0,
+  } = route?.params || {};
+
+  // Safety: avoid divide by zero
+  const accuracy =
+    total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  const isPerfect = correct === total && total > 0;
+  const streakBonus = accuracy >= 80; // simple logic (adjust later)
 
   return (
     <SafeAreaView style={styles.container}>
       {/* 🎉 RESULT CARD */}
       <View style={styles.resultCard}>
-        <Text style={styles.resultEmoji}>🎉</Text>
-        <Text style={styles.title}>Quiz Completed!</Text>
+        <Text style={styles.resultEmoji}>
+          {isPerfect ? '🏆' : '🎉'}
+        </Text>
+
+        <Text style={styles.title}>
+          {isPerfect ? 'Perfect Score!' : 'Quiz Completed'}
+        </Text>
+
         <Text style={styles.subtitle}>
-          You did great, keep learning 🚀
+          {isPerfect
+            ? 'Outstanding! You nailed every question 🔥'
+            : 'Good effort! Keep improving your scam awareness 🚀'}
         </Text>
 
         {/* SCORE */}
         <View style={styles.scoreBox}>
           <Text style={styles.scoreText}>
-            {RESULT.correct} / {RESULT.total}
+            {correct} / {total}
           </Text>
-          <Text style={styles.scoreLabel}>Correct Answers</Text>
+          <Text style={styles.scoreLabel}>
+            Correct Answers
+          </Text>
         </View>
 
         {/* STATS */}
         <View style={styles.statsRow}>
           <Stat label="Accuracy" value={`${accuracy}%`} />
-          <Stat label="XP Earned" value={`+${RESULT.xpEarned}`} />
+          <Stat label="XP Earned" value={`+${xpEarned}`} />
+        </View>
+
+        {/* CORRECT / WRONG */}
+        <View style={styles.breakdownRow}>
+          <Breakdown label="Correct" value={correct} color="#10B981" />
+          <Breakdown label="Wrong" value={wrong} color="#EF4444" />
         </View>
       </View>
 
       {/* ACTIONS */}
       <TouchableOpacity
         style={styles.primaryBtn}
-        onPress={() => navigation.navigate('Rewards')}
+        onPress={() =>
+          navigation.navigate('Rewards', {
+            xpEarned,
+            correct,
+            total,
+            streakBonus,
+          })
+        }
       >
         <Ionicons name="gift" size={18} color="#fff" />
-        <Text style={styles.primaryText}>View Rewards</Text>
+        <Text style={styles.primaryText}>
+          View Rewards
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.secondaryBtn}
         onPress={() => navigation.navigate('QuizHome')}
       >
-        <Text style={styles.secondaryText}>Back to Quiz Home</Text>
+        <Text style={styles.secondaryText}>
+          Back to Quiz Home
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
-/* 🔹 SMALL REUSABLE STAT */
+/* 🔹 SMALL REUSABLE COMPONENTS */
+
 const Stat = ({ label, value }) => (
   <View style={styles.statBox}>
     <Text style={styles.statValue}>{value}</Text>
     <Text style={styles.statLabel}>{label}</Text>
+  </View>
+);
+
+const Breakdown = ({ label, value, color }) => (
+  <View style={styles.breakdownBox}>
+    <Text style={[styles.breakdownValue, { color }]}>
+      {value}
+    </Text>
+    <Text style={styles.breakdownLabel}>{label}</Text>
   </View>
 );
 
@@ -95,7 +137,7 @@ const styles = StyleSheet.create({
   },
 
   resultEmoji: {
-    fontSize: 42,
+    fontSize: 44,
     marginBottom: 10,
   },
 
@@ -151,6 +193,33 @@ const styles = StyleSheet.create({
   },
 
   statLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 4,
+  },
+
+  breakdownRow: {
+    flexDirection: 'row',
+    marginTop: 18,
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+
+  breakdownBox: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    marginHorizontal: 6,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+
+  breakdownValue: {
+    fontSize: 20,
+    fontWeight: '900',
+  },
+
+  breakdownLabel: {
     fontSize: 11,
     color: '#64748B',
     marginTop: 4,

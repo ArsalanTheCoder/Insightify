@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Screen from '../../components/layout/Screen';
 
 const FILTERS = ['All', 'Suspicious', 'Safe', 'Saved'];
 
@@ -124,7 +125,7 @@ export default function DetectionHistoryScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen padded edges={['top', 'bottom']} backgroundColor="#F8FAFF">
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* 🔵 HERO CARD */}
         <View style={styles.heroCard}>
@@ -185,7 +186,7 @@ export default function DetectionHistoryScreen({ navigation }) {
           scrollEnabled={false}
         />
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 }
 

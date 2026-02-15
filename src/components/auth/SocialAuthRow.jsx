@@ -5,69 +5,105 @@ import Icon from 'react-native-vector-icons/Ionicons';
 export default function SocialAuthRow({ onGoogle, onApple, onLinkedIn }) {
   return (
     <View style={styles.container}>
+      {/* Divider */}
       <View style={styles.dividerRow}>
         <View style={styles.line} />
         <Text style={styles.orText}>or continue with</Text>
         <View style={styles.line} />
       </View>
 
+      {/* Buttons */}
       <View style={styles.iconsRow}>
-        <TouchableOpacity style={styles.circle} onPress={onGoogle}>
-          <Icon name="logo-google" size={22} />
-          <Text style={styles.iconLabel}>Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.circle} onPress={onApple}>
-          <Icon name="logo-apple" size={22} />
-          <Text style={styles.iconLabel}>Apple</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.circle} onPress={onLinkedIn}>
-          <Icon name="logo-linkedin" size={22} />
-          <Text style={styles.iconLabel}>LinkedIn</Text>
-        </TouchableOpacity>
+        <SocialButton
+          label="Google"
+          icon="logo-google"
+          color="#DB4437"
+          onPress={onGoogle}
+        />
+        <SocialButton
+          label="Apple"
+          icon="logo-apple"
+          color="#111111"
+          onPress={onApple}
+        />
+        <SocialButton
+          label="LinkedIn"
+          icon="logo-linkedin"
+          color="#0A66C2"
+          onPress={onLinkedIn}
+        />
       </View>
     </View>
   );
 }
 
+/* ---------- REUSABLE BUTTON ---------- */
+
+function SocialButton({ label, icon, color, onPress }) {
+  return (
+    <TouchableOpacity
+      style={styles.button}
+      activeOpacity={0.85}
+      onPress={onPress}
+    >
+      <Icon name={icon} size={22} color={color} />
+      <Text style={[styles.label, { color }]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+/* ---------------- STYLES ---------------- */
+
 const styles = StyleSheet.create({
-  container: { marginTop: 12 },
+  container: {
+    marginTop: 18,
+  },
+
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
   },
+
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e6e6e6',
+    backgroundColor: '#E5EDFF',
   },
+
   orText: {
     marginHorizontal: 12,
     fontSize: 13,
-    color: '#9b9b9b',
+    color: '#64748B',
+    fontWeight: '600',
   },
+
   iconsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
+    gap: 10, // ✅ modern spacing (RN 0.71+)
   },
-  circle: {
-    width: 98,
-    height: 74,
-    borderRadius: 10,
+
+  button: {
+    flex: 1, // ✅ KEY FIX (auto fits screen)
+    height: 76,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#e6e6e6',
+    borderColor: '#E5EDFF',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 6,
-    marginHorizontal: 4,
+    backgroundColor: '#FFFFFF',
+
+    // soft shadow
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 2,
   },
-  iconLabel: {
-    fontSize: 12,
+
+  label: {
     marginTop: 6,
-    color: '#666',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

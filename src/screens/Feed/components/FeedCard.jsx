@@ -16,7 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Pressable } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
-const APP_LOGO = require('../../../../assets/images/logo.png');
+const APP_LOGO = require('../../../../assets/images/insightify.png');
 
 const REACTIONS = ['👍', '❤️', '😮', '😢', '😡', '🎉'];
 

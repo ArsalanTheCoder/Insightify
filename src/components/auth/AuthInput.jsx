@@ -8,6 +8,7 @@ export default function AuthInput({
   secureTextEntry = false,
   keyboardType = 'default',
   style,
+  autoCapitalize = 'none',
 }) {
   return (
     <View style={[styles.wrap, style]}>
@@ -15,11 +16,11 @@ export default function AuthInput({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#9e9e9e"
+        placeholderTextColor="#9ca3af"
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         style={styles.input}
-        autoCapitalize="none"
+        autoCapitalize={autoCapitalize}
       />
     </View>
   );
@@ -30,18 +31,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   input: {
-    height: 44,
+    height: 50,
     backgroundColor: '#fff',
-    borderRadius: 6,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e6e6e6',
-    paddingHorizontal: 14,
-    // light inner shadow effect imitation:
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 1,
-    elevation: 0,
-    fontSize: 14,
+    borderColor: '#e6eefc',
+    paddingHorizontal: 16,
+    shadowColor: '#0b5cff',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 20,
+    elevation: 2,
+    fontSize: 15,
+    color: '#0F172A',
   },
 });

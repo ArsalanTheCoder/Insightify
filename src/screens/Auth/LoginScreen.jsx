@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/screens/Auth/LoginScreen.js
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -8,21 +9,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
   ActivityIndicator,
 } from 'react-native';
-
 import Icon from 'react-native-vector-icons/Ionicons';
+
 import AuthInput from '../../components/auth/AuthInput';
 import PrimaryButton from '../../components/auth/PrimaryButton';
 import SocialAuthRow from '../../components/auth/SocialAuthRow';
-import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import Screen from '../../components/layout/Screen';
 
 import { loginWithEmail } from '../../services/authService';
-
+import { AuthContext } from '../../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
-const { login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext); // ✅ RESTORED
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +31,7 @@ const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Missing Fields', 'Please enter email and password');
+      Alert.alert('Missing Info', 'Please enter email and password');
       return;
     }
 
@@ -42,49 +43,54 @@ const { login } = useContext(AuthContext);
         password
       );
 
+      // ✅ THIS is what actually logs user in
       await login(userCredential.user);
 
-    } catch (error) {
-      Alert.alert('Login Failed', error.message);
+      // ❌ DO NOT navigate manually
+      // AuthContext + Navigator will handle it
+
+    } catch (err) {
+      Alert.alert('Login Failed', err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
+   <Screen padded backgroundColor="#FFFFFF">
     <KeyboardAvoidingView
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
 
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <Icon name="shield-outline" size={24} />
-            <Text style={styles.brand}>Insightify</Text>
-          </View>
-          <Text style={styles.muted}>AI-Powered Scam Detection</Text>
+        {/* BRAND */}
+        <View style={styles.brandBlock}>
+          <Image
+            source={require('../../../assets/images/insightify.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.brand}>Insightify</Text>
+          <Text style={styles.tagline}>AI-Powered Scam Detection</Text>
         </View>
-
-        {/* HERO */}
-        <Text style={styles.hero}>Empowering You to Outsmart AI Fraud</Text>
-        <Text style={styles.heroSub}>Stay Away, Stay Safe</Text>
 
         {/* TITLE */}
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>
-          Login to continue protecting yourself
+          Login to continue protecting yourself from scams
         </Text>
 
         {/* FORM */}
         <View style={styles.form}>
           <AuthInput
-            placeholder="Email"
+            placeholder="Email Address"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
-            autoCapitalize="none"
           />
 
           <AuthInput
@@ -95,23 +101,23 @@ const { login } = useContext(AuthContext);
           />
 
           <TouchableOpacity
-            style={styles.forgotWrap}
             onPress={() => navigation.navigate('ForgotPassword')}
+            style={styles.forgot}
           >
-            <Text style={styles.forgot}>Forgot Password?</Text>
+            <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
           <PrimaryButton
-            title={loading ? 'Logging in...' : 'Login Securely'}
+            title={loading ? 'Logging in…' : 'Login Securely'}
             onPress={handleLogin}
             disabled={loading}
           />
 
           {loading && (
             <ActivityIndicator
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 14 }}
               size="small"
-              color="#1976d2"
+              color="#2563EB"
             />
           )}
         </View>
@@ -127,104 +133,116 @@ const { login } = useContext(AuthContext);
         {/* SOCIAL */}
         <SocialAuthRow />
 
-        {/* PRIVACY */}
+        {/* TRUST */}
         <View style={styles.privacy}>
-          <Icon name="lock-closed-outline" size={14} color="#9b9b9b" />
+          <Icon name="lock-closed-outline" size={14} color="#94A3B8" />
           <Text style={styles.privacyText}>
-            {' '}Your privacy is protected by end-to-end encryption
+            {' '}End-to-end encrypted • Privacy protected
           </Text>
         </View>
 
       </ScrollView>
     </KeyboardAvoidingView>
+    </Screen>
   );
 }
+
+/* ---------------- STYLES ---------------- */
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
+
   container: {
-    padding: 22,
+    paddingTop: 28,
+    paddingBottom: 24,
   },
 
-  header: {
-    marginBottom: 24,
-  },
-  logoRow: {
-    flexDirection: 'row',
+  /* BRAND */
+  brandBlock: {
     alignItems: 'center',
+    marginBottom: 34,
   },
+
+  logo: {
+    width: 96,
+    height: 96,
+    marginBottom: 10,
+  },
+
   brand: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginLeft: 10,
-  },
-  muted: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 6,
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: 0.4,
   },
 
-  hero: {
-    fontSize: 15,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  heroSub: {
+  tagline: {
+    marginTop: 4,
     fontSize: 13,
-    color: '#7a7a7a',
-    marginBottom: 26,
+    color: '#64748B',
   },
 
+  /* TEXT */
   title: {
-    fontSize: 28,
-    fontWeight: '800',
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#0F172A',
     marginBottom: 6,
   },
+
   subtitle: {
     fontSize: 14,
-    color: '#7a7a7a',
-    marginBottom: 24,
+    color: '#64748B',
+    marginBottom: 28,
+    lineHeight: 20,
   },
 
+  /* FORM */
   form: {
+    marginBottom: 18,
+  },
+
+  forgot: {
+    alignSelf: 'flex-end',
     marginBottom: 16,
   },
 
-  forgotWrap: {
-    alignItems: 'flex-end',
-    marginBottom: 12,
-  },
-  forgot: {
+  forgotText: {
     fontSize: 13,
-    color: '#1976d2',
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#2563EB',
   },
 
+  /* FOOTER */
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 14,
   },
+
   small: {
     fontSize: 13,
-    color: '#666',
+    color: '#64748B',
   },
+
   link: {
     fontSize: 13,
-    color: '#1976d2',
-    fontWeight: '700',
+    fontWeight: '800',
+    color: '#2563EB',
   },
 
   privacy: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 18,
+    justifyContent: 'center',
+    marginTop: 20,
   },
+
   privacyText: {
     fontSize: 12,
-    color: '#9b9b9b',
+    color: '#94A3B8',
   },
 });
