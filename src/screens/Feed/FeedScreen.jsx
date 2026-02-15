@@ -5,7 +5,6 @@ import {
   StyleSheet,
   StatusBar,
   FlatList,
-  SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -68,7 +67,7 @@ const FEED_DATA = [
     image: require('../../../assets/images/scam4.jpeg'),
     isVerified: true,
   },
-  
+
   {
     id: '5',
     time: '6 hours ago',
@@ -195,8 +194,9 @@ const FEED_DATA = [
 export default function FeedScreen() {
   return (
     <Screen backgroundColor="#F4F6F8" padded={false} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
+      {/* TOP BAR */}
       <View style={styles.topBar}>
         <View>
           <Text style={styles.logo}>Insightify</Text>
@@ -204,31 +204,29 @@ export default function FeedScreen() {
         </View>
 
         <View style={styles.topIcons}>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => { /* open search */ }}>
+          <TouchableOpacity style={styles.iconBtn}>
             <Ionicons name="search-outline" size={20} color="#374151" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.iconBtn} onPress={() => { /* open notifications */ }}>
+          <TouchableOpacity style={styles.iconBtn}>
             <Ionicons name="notifications-outline" size={20} color="#374151" />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* FEED */}
       <FlatList
         data={FEED_DATA}
         renderItem={({ item }) => <FeedCard post={item} />}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4F6F8',
-  },
   topBar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
@@ -257,4 +255,8 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 8,
   },
+  listContent: {
+    paddingBottom: 20,
+  },
 });
+

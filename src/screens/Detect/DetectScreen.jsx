@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/screens/Detect/DetectScreen.jsx
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,27 +17,53 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Screen from '../../components/layout/Screen';
 
-// Media Libraries
 import { launchImageLibrary } from 'react-native-image-picker';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 
 import { analyzeText } from '../../services/scamApi';
+import AccessibilitySetupBanner from '../../components/AccessibilitySetupBanner';
 
 // 🔒 LIMIT: 4MB
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
-const DetectScreen = ({ navigation }) => {
-  // --- STATE ---
+function hashStringToId(s) {
+  if (!s) return 'no-id';
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) + h) + s.charCodeAt(i);
+    h &= 0xffffffff;
+  }
+  return String(h >>> 0);
+}
+
+const DetectScreen = ({ navigation, route }) => {
   const [inputText, setInputText] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [processingFile, setProcessingFile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
 
-  /* ---------------- FILE HELPERS ---------------- */
+  const lastPayloadIdRef = useRef(null);
 
-  const checkSize = (size) => {
+  /* ───────────── ROUTE PAYLOAD (FROM App.jsx) ───────────── */
+
+  useEffect(() => {
+    const payload = route?.params;
+    if (!payload?.autofillText && !payload?.text) return;
+
+    const text = payload.autofillText || payload.text;
+    const id = hashStringToId(text);
+
+    if (lastPayloadIdRef.current === id) return;
+
+    lastPayloadIdRef.current = id;
+    setInputText(text);
+  }, [route?.params]);
+
+  /* ───────────── FILE HELPERS ───────────── */
+
+  const checkSize = size => {
     if (size && size > MAX_FILE_SIZE) {
       Alert.alert('File Too Large', 'Please use files under 4MB.');
       return false;
@@ -48,7 +75,7 @@ const DetectScreen = ({ navigation }) => {
     setMenuOpen(false);
     launchImageLibrary(
       { mediaType: 'photo', includeBase64: true, quality: 0.5 },
-      (res) => {
+      res => {
         if (res?.assets?.length) {
           const a = res.assets[0];
           if (!checkSize(a.fileSize)) return;
@@ -59,16 +86,19 @@ const DetectScreen = ({ navigation }) => {
             mimeType: a.type,
           });
         }
-      }
+      },
     );
   };
 
   const handlePickVideo = () => {
     setMenuOpen(false);
-    launchImageLibrary({ mediaType: 'video', videoQuality: 'low' }, async (res) => {
-      if (res?.assets?.length) {
+    launchImageLibrary(
+      { mediaType: 'video', videoQuality: 'low' },
+      async res => {
+        if (!res?.assets?.length) return;
         const a = res.assets[0];
         if (!checkSize(a.fileSize)) return;
+
         setProcessingFile(true);
         try {
           const base64 = await RNFS.readFile(a.uri, 'base64');
@@ -83,8 +113,8 @@ const DetectScreen = ({ navigation }) => {
         } finally {
           setProcessingFile(false);
         }
-      }
-    });
+      },
+    );
   };
 
   const handlePickAudio = async () => {
@@ -117,10 +147,6 @@ const DetectScreen = ({ navigation }) => {
     }
   };
 
-  const handleClearMedia = () => setSelectedMedia(null);
-
-  /* ---------------- MAIN ACTION ---------------- */
-
   const handleAnalyzePress = async () => {
     if (!inputText.trim() && !selectedMedia) {
       Alert.alert('Empty Input', 'Please paste text or select media.');
@@ -144,123 +170,147 @@ const DetectScreen = ({ navigation }) => {
     }
   };
 
-  /* ---------------- UI ---------------- */
+  /* ───────────── UI ───────────── */
 
   return (
-    <Screen padded edges={['top', 'bottom']} backgroundColor="#F8FAFF">
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#EFF6FF" />
+    <Screen padded edges={['top', 'bottom']} backgroundColor="#F8FAFC">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
-        <View style={styles.topHeader}>
-          <Text style={styles.topTitle}>Detect</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('HistoryScreen')} style={styles.historyBtn}>
-            <Ionicons name="time-outline" size={18} color="#2563EB" />
-            <Text style={styles.historyText}>History</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Hero */}
-        <View style={styles.headerSection}>
-          <View style={styles.iconCircle}>
-            <Ionicons name="shield-checkmark" size={30} color="#FFFFFF" />
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.topHeader}>
+            <Text style={styles.topTitle}>Detect</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('HistoryScreen')}
+              style={styles.historyBtn}
+            >
+              <Ionicons name="time-outline" size={18} color="#2563EB" />
+              <Text style={styles.historyText}>History</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.headerTitle}>AI Scam Analyzer</Text>
-          <Text style={styles.headerSubtitle}>
-            Paste suspicious messages or upload files to analyze.
-          </Text>
-        </View>
 
-        {/* Media Preview */}
-        {selectedMedia && (
-          <View style={styles.mediaPreviewCard}>
-            <View style={styles.mediaHeaderRow}>
-              <Text style={styles.mediaTitle}>Ready to Analyze</Text>
-              <TouchableOpacity onPress={handleClearMedia}>
-                <Ionicons name="close-circle" size={24} color="#EF4444" />
+          <View style={styles.headerSection}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="shield-checkmark" size={30} color="#FFFFFF" />
+            </View>
+            <Text style={styles.headerTitle}>AI Scam Analyzer</Text>
+            <Text style={styles.headerSubtitle}>
+              Paste suspicious messages or upload files to analyze.
+            </Text>
+          </View>
+
+          <AccessibilitySetupBanner />
+
+          {selectedMedia && (
+            <View style={styles.mediaPreviewCard}>
+              <View style={styles.mediaHeaderRow}>
+                <Text style={styles.mediaTitle}>Ready to Analyze</Text>
+                <TouchableOpacity onPress={() => setSelectedMedia(null)}>
+                  <Ionicons name="close-circle" size={24} color="#EF4444" />
+                </TouchableOpacity>
+              </View>
+
+              {selectedMedia.type === 'image' && (
+                <Image
+                  source={{ uri: selectedMedia.uri }}
+                  style={styles.previewImage}
+                />
+              )}
+
+              {selectedMedia.type !== 'image' && (
+                <View style={styles.filePlaceholder}>
+                  <Ionicons name="document" size={40} color="#64748B" />
+                  <Text style={styles.fileText}>
+                    {selectedMedia.name || 'File Selected'}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+        </ScrollView>
+
+        <View style={styles.bottomInputWrapper}>
+          {menuOpen && (
+            <View style={styles.attachMenu}>
+              <TouchableOpacity style={styles.menuItem} onPress={handlePickImage}>
+                <Text style={styles.menuLabel}>Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={handlePickVideo}>
+                <Text style={styles.menuLabel}>Video</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={handlePickAudio}>
+                <Text style={styles.menuLabel}>Audio</Text>
               </TouchableOpacity>
             </View>
+          )}
 
-            {selectedMedia.type === 'image' && (
-              <Image source={{ uri: selectedMedia.uri }} style={styles.previewImage} />
-            )}
-
-            {selectedMedia.type !== 'image' && (
-              <View style={styles.filePlaceholder}>
-                <Ionicons name="document" size={40} color="#64748B" />
-                <Text style={styles.fileText}>{selectedMedia.name || 'File Selected'}</Text>
-              </View>
-            )}
-          </View>
-        )}
-      </ScrollView>
-
-      {/* Bottom Input */}
-      <View style={styles.bottomInputWrapper}>
-        {menuOpen && (
-          <View style={styles.attachMenu}>
-            <TouchableOpacity style={styles.menuItem} onPress={handlePickImage}>
-              <Ionicons name="image" size={18} color="#10B981" />
-              <Text style={styles.menuLabel}>Photo</Text>
+          <View style={styles.inputRow}>
+            <TouchableOpacity
+              style={styles.plusButton}
+              onPress={() => setMenuOpen(!menuOpen)}
+            >
+              <Ionicons name={menuOpen ? 'close' : 'add'} size={22} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={handlePickVideo}>
-              <Ionicons name="videocam" size={18} color="#F59E0B" />
-              <Text style={styles.menuLabel}>Video</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={handlePickAudio}>
-              <Ionicons name="musical-notes" size={18} color="#8B5CF6" />
-              <Text style={styles.menuLabel}>Audio</Text>
+
+            <TextInput
+              style={styles.chatInput}
+              placeholder="Check message, link, or scam..."
+              multiline
+              value={inputText}
+              onChangeText={setInputText}
+            />
+
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleAnalyzePress}
+              disabled={analyzing}
+            >
+              {analyzing ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Ionicons name="arrow-up" size={18} color="#fff" />
+              )}
             </TouchableOpacity>
           </View>
-        )}
-
-        <View style={styles.inputRow}>
-          <TouchableOpacity style={styles.plusButton} onPress={() => setMenuOpen(!menuOpen)}>
-            <Ionicons name={menuOpen ? 'close' : 'add'} size={22} />
-          </TouchableOpacity>
-
-          <TextInput
-            style={styles.chatInput}
-            placeholder="Check message, link, or scam..."
-            multiline
-            value={inputText}
-            onChangeText={setInputText}
-          />
-
-          <TouchableOpacity style={styles.sendButton} onPress={handleAnalyzePress} disabled={analyzing}>
-            {analyzing ? <ActivityIndicator color="#fff" /> : <Ionicons name="arrow-up" size={18} color="#fff" />}
-          </TouchableOpacity>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 };
 
 export default DetectScreen;
 
+/* ───────────── STYLES ───────────── */
 
-/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  scrollContainer: { paddingTop: 20, paddingBottom: 100 }, 
+  scrollContainer: { padding: 20, paddingBottom: 100 },
 
-  topHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   topTitle: { fontSize: 24, fontWeight: '800', color: '#1E293B' },
-  historyBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 },
-  historyText: { marginLeft: 4, color: '#2563EB', fontWeight: '600', fontSize: 13 },
+  historyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  historyText: { marginLeft: 4, color: '#2563EB', fontWeight: '600' },
 
   headerSection: {
     alignItems: 'center',
     marginBottom: 20,
-    backgroundColor: '#2563EB', // theme blue
+    backgroundColor: '#2563EB',
     padding: 22,
     borderRadius: 24,
-    shadowColor: '#2563EB',
-    shadowOpacity: 0.25,
-    shadowRadius: 14,
-    elevation: 6,
   },
   iconCircle: {
     width: 54,
@@ -271,33 +321,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 12,
   },
+  headerTitle: { fontSize: 22, fontWeight: '800', color: '#fff' },
+  headerSubtitle: { fontSize: 13, color: '#DBEAFE', textAlign: 'center' },
 
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 6,
-  },
-
-  headerSubtitle: {
-    fontSize: 13,
-    color: '#DBEAFE',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
   mediaPreviewCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 12,
-    marginTop: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    elevation: 2,
   },
-  mediaHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+
+  mediaHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   mediaTitle: { fontWeight: '700', color: '#2563EB' },
-  previewImage: { width: '100%', height: 200, borderRadius: 12, backgroundColor: '#f0f0f0' },
-  filePlaceholder: { width: '100%', height: 120, borderRadius: 12, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
+  previewImage: { width: '100%', height: 200, borderRadius: 12 },
+  filePlaceholder: {
+    height: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   fileText: { marginTop: 10, color: '#475569', fontWeight: '600' },
 
   bottomInputWrapper: {
@@ -308,9 +353,7 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 2,  
-    paddingVertical: 10,
+    padding: 10,
   },
   plusButton: {
     width: 36,
@@ -320,31 +363,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plusButtonActive: {
-    backgroundColor: '#E5E7EB',
-    transform: [{ rotate: '45deg' }]
-  },
   chatInput: {
     flex: 1,
     backgroundColor: '#F3F4F6',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    maxHeight: 100,
-    color: '#1E293B',
-    fontSize: 16,
+    marginHorizontal: 8,
   },
   sendButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
     backgroundColor: '#2563EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  micButton: {
-    width: 36,
-    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -356,31 +387,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
     width: 150,
     zIndex: 100,
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-  },
-  menuIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  menuLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
-  },
+  menuItem: { paddingVertical: 10 },
+  menuLabel: { fontSize: 14, fontWeight: '600' },
 });

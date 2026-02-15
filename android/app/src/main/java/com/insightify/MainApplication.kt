@@ -14,19 +14,27 @@ import com.facebook.soloader.SoLoader
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
-      object : DefaultReactNativeHost(this) {
-        override fun getPackages(): List<ReactPackage> =
-            PackageList(this).packages.apply {
-              // Do not add NotificationPackage or any custom package here
-            }
+    object : DefaultReactNativeHost(this) {
 
-        override fun getJSMainModuleName(): String = "index"
+      override fun getPackages(): List<ReactPackage> =
+        PackageList(this).packages.apply {
+          // 🔔 Notification → JS bridge
+          add(NotificationPackage())
 
-        override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+          // 🛡️ Accessibility → JS bridge
+          add(AccessibilityPackage())
+        }
 
-        override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-        override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
-      }
+      override fun getJSMainModuleName(): String = "index"
+
+      override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+
+      override val isNewArchEnabled: Boolean =
+        BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+
+      override val isHermesEnabled: Boolean =
+        BuildConfig.IS_HERMES_ENABLED
+    }
 
   override val reactHost: ReactHost
     get() = getDefaultReactHost(applicationContext, reactNativeHost)
@@ -34,8 +42,8 @@ class MainApplication : Application(), ReactApplication {
   override fun onCreate() {
     super.onCreate()
     SoLoader.init(this, false)
+
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
   }
