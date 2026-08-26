@@ -270,6 +270,9 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    color: '#0F172A',
+    fontSize: 14,
+    lineHeight: 20, 
   },
 
   submitBtn: {

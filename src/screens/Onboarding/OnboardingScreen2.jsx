@@ -26,10 +26,11 @@ export default function Onboarding2({ navigation }) {
         <View style={styles.slideContainer}>
           
           <View style={styles.animationBox}>
-             {/* Lottie File: ai_brain.json 
-                Theme: Blue/Tech representing Gemini 3 
+             {/* SUGGESTED ANIMATION: 'scan_radar.json' or 'security_scan.json'
+                Why: Shows active analysis of data rather than just a static brain.
              */}
             <LottieView
+              // Make sure to rename your new lottie file to 'scan_radar.json' or update this path
               source={require('../../../assets/animations/ai_brain.json')} 
               autoPlay
               loop
@@ -38,9 +39,13 @@ export default function Onboarding2({ navigation }) {
             />
           </View>
 
-          <Text style={styles.title}>Powered by Gemini 3</Text>
+          {/* --- INVESTOR PITCH TEXT --- */}
+          {/* OLD: Powered by Gemini 3 */}
+          <Text style={styles.title}>Detect the Undetectable</Text> 
+          
+          {/* OLD: The world’s first Multimodal Scam Detector... */}
           <Text style={styles.subtitle}>
-            The world’s first Multimodal Scam Detector. We analyze Audio, Video, and Text in real-time.
+            Our Multimodal AI analyzes audio, video, and text instantly to catch what humans miss.
           </Text>
         </View>
 
@@ -54,7 +59,7 @@ export default function Onboarding2({ navigation }) {
           </View>
 
           <OnboardingFooter
-            index={1} // Current Screen Index
+            index={1} 
             total={3} 
             onNext={() => navigation.navigate('Onboarding3')}
             onSkip={finishOnboarding}
@@ -77,17 +82,17 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   animationBox: {
-    width: width * 0.8,
-    height: width * 0.8,
+    width: width * 0.85, // Slightly larger for impact
+    height: width * 0.85,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: '#EFF6FF', // Light Blue Background
+    marginBottom: 30,
+    backgroundColor: '#EFF6FF', 
     borderRadius: 200, 
   },
   lottie: {
-    width: '90%',
-    height: '90%',
+    width: '100%', // Use full space of the box
+    height: '100%',
   },
   title: {
     fontSize: 28,
@@ -95,13 +100,15 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     textAlign: 'center',
     marginBottom: 12,
+    letterSpacing: 0.5, // Adds a premium feel
   },
   subtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: '#4B5563', // Slightly darker for better readability
     textAlign: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     lineHeight: 24,
+    fontWeight: '500',
   },
   cta: { paddingHorizontal: 6, marginTop: 6 },
 });
