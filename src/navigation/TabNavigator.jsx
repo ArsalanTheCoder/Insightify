@@ -1,3 +1,12 @@
+/**
+ * Insightify — TabNavigator
+ *
+ * 5-tab application bottom navigator:
+ * Home | Feed | Detect (Center Floating Shield) | Learn | Profile
+ *
+ * docs/RFC/RFC-002-F-home-dashboard.md section 7
+ */
+
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -5,11 +14,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import CustomTabBar from '../components/navigation/CustomTabBar';
 
 // Screens / Stacks
-import FeedScreen from '../screens/Feed/FeedScreen';
-import ReportStack from './ReportStack';
+import HomeScreen from '../features/home/screens/HomeScreen';
+import FeedStack from './FeedStack';
 import DetectStack from './DetectStack';
+import GamesStack from './GamesStack'; // Serves as Learn stack
 import ProfileStack from './ProfileStack';
-import GamesStack from './GamesStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,10 +32,10 @@ export default function TabNavigator() {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Feed" component={FeedScreen} />
-      <Tab.Screen name="Games" component={GamesStack} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Feed" component={FeedStack} />
       <Tab.Screen name="Detect" component={DetectStack} />
-      <Tab.Screen name="Report" component={ReportStack} />
+      <Tab.Screen name="Learn" component={GamesStack} />
       <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   );

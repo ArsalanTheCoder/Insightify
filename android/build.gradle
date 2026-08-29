@@ -21,7 +21,7 @@ buildscript {
         // Kotlin Plugin (Must reference the version variable)
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
 
-        classpath('com.google.gms:google-services:4.4.4')
+
     }
 }
 

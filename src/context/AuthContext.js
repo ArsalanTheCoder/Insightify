@@ -1,6 +1,14 @@
+/**
+ * AuthContext — Temporary placeholder.
+ *
+ * Firebase has been removed. This placeholder keeps the app buildable
+ * while the Authentication RFC is prepared. It will be replaced by
+ * Zustand + TanStack Query auth state once the RFC is approved.
+ *
+ * TODO(RFC-001): Replace with production auth implementation.
+ */
 import React, { createContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logout as firebaseLogout } from '../services/authService';
 
 export const AuthContext = createContext();
 
@@ -10,8 +18,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const loadUser = async () => {
-      const savedUser = await AsyncStorage.getItem('user');
-      if (savedUser) setUser(JSON.parse(savedUser));
+      try {
+        const savedUser = await AsyncStorage.getItem('user');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+      } catch {
+        // Ignore load errors — user will be treated as unauthenticated
+      }
       setLoading(false);
     };
     loadUser();
@@ -23,10 +37,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await firebaseLogout();               
     await AsyncStorage.removeItem('user');
-    await AsyncStorage.removeItem('hasSeenOnboarding');    
-    setUser(null);                        
+    await AsyncStorage.removeItem('hasSeenOnboarding');
+    setUser(null);
   };
 
   return (

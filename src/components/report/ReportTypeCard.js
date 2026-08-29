@@ -11,7 +11,7 @@ export default function ReportTypeCard({ label, icon, selected, onPress }) {
 
   useEffect(() => {
     scale.value = withSpring(selected ? 1.05 : 1);
-  }, [selected]);
+  }, [selected, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: 'com.google.gms.google-services'
+
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -116,25 +116,13 @@ android {
         }
     }
 
-    // PASTE THIS BLOCK HERE:
-configurations.all {
-        resolutionStrategy {
-            // Force ALL measurement libraries to the older, working version (22.1.2)
-            force 'com.google.android.gms:play-services-measurement:22.1.2'
-            force 'com.google.android.gms:play-services-measurement-base:22.1.2'
-            force 'com.google.android.gms:play-services-measurement-impl:22.1.2'
-            force 'com.google.android.gms:play-services-measurement-api:22.1.2'
-            force 'com.google.android.gms:play-services-measurement-sdk:22.1.2'
-            force 'com.google.android.gms:play-services-measurement-sdk-api:22.1.2'
-        }
-    }
+
 }
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation platform('com.google.firebase:firebase-bom:34.7.0')
-    implementation('com.google.firebase:firebase-analytics')
+
 
      // WorkManager (KTX) for background reliable jobs
     implementation("androidx.work:work-runtime-ktx:2.8.1")

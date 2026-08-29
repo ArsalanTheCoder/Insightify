@@ -1,4 +1,4 @@
-// App.jsx — Root App with Accessibility + Notifications + Safe Area
+// App.jsx — Root App with AppProviders + Theme + Accessibility + Notifications
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {
@@ -10,11 +10,10 @@ import {
   StatusBar,
   InteractionManager,
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import AppProviders from './src/app/providers/AppProviders';
+import { useTheme } from './src/shared/hooks/useTheme';
 import RootNavigator from './src/navigation/RootNavigator';
-import { AuthProvider } from './src/context/AuthContext';
-import { OnboardingProvider } from './src/context/OnboardingContext';
 import { navigationRef, navigateToDetect } from './src/navigation/navigationRef';
 
 import ScamAlertOverlay from './src/components/ScamAlertOverlay';
@@ -65,10 +64,11 @@ async function promptAccessibilitySetup() {
 }
 
 /* ───────────────────────────────────────────── */
-/* APP ROOT */
+/* APP CONTENT (Theme-aware) */
 /* ───────────────────────────────────────────── */
 
-export default function App() {
+function AppContent() {
+  const { colors, isDark } = useTheme();
   const [activeThreat, setActiveThreat] = useState(null);
   const seenHashesRef = useRef(new Set());
 
@@ -159,24 +159,30 @@ export default function App() {
   }, [processIncomingThreat]);
 
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <OnboardingProvider>
-          <NavigationContainer ref={navigationRef}>
-            <StatusBar
-              barStyle="dark-content"
-              backgroundColor="#FFFFFF"
-              translucent={false}
-            />
-            <RootNavigator />
-            <ScamAlertOverlay
-              threat={activeThreat}
-              onViewDetails={handleViewDetails}
-              onDismiss={handleDismiss}
-            />
-          </NavigationContainer>
-        </OnboardingProvider>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <NavigationContainer ref={navigationRef}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+        translucent={false}
+      />
+      <RootNavigator />
+      <ScamAlertOverlay
+        threat={activeThreat}
+        onViewDetails={handleViewDetails}
+        onDismiss={handleDismiss}
+      />
+    </NavigationContainer>
+  );
+}
+
+/* ───────────────────────────────────────────── */
+/* APP ROOT */
+/* ───────────────────────────────────────────── */
+
+export default function App() {
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
   );
 }

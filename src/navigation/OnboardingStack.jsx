@@ -1,18 +1,2 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-import Onboarding1 from '../screens/Onboarding/OnboardingScreen1';
-import Onboarding2 from '../screens/Onboarding/OnboardingScreen2';
-import Onboarding3 from '../screens/Onboarding/OnboardingScreen3';
-
-const Stack = createNativeStackNavigator();
-
-export default function OnboardingStack() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Onboarding1" component={Onboarding1} />
-      <Stack.Screen name="Onboarding2" component={Onboarding2} />
-      <Stack.Screen name="Onboarding3" component={Onboarding3} />
-    </Stack.Navigator>
-  );
-}
+// src/navigation/OnboardingStack.jsx — Bridge re-export
+export { default } from '../app/navigation/OnboardingStack';

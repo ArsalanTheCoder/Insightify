@@ -79,6 +79,7 @@ const ScamAlertOverlay = ({ threat, onViewDetails, onDismiss }) => {
                 if (timerRef.current) clearTimeout(timerRef.current);
             };
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [threat]);
 
     const handleDismiss = () => {
