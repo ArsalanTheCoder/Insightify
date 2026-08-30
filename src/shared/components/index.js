@@ -13,6 +13,8 @@ export { default as StatusPill } from './StatusPill';
 export { default as ScreenContainer } from './ScreenContainer';
 export { default as ScreenHeader } from './ScreenHeader';
 export { default as SectionHeader } from './SectionHeader';
+export { default as SectionTitle } from './SectionTitle';
+export { default as ProgressBar } from './ProgressBar';
 export { default as LoadingState } from './LoadingState';
 export { default as EmptyState } from './EmptyState';
 export { default as ErrorState } from './ErrorState';
