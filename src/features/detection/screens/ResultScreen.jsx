@@ -18,7 +18,6 @@ import {
   Share,
   ActivityIndicator,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,22 +68,12 @@ export default function ResultScreen() {
   };
 
   const handleReportThreat = () => {
-    Alert.alert(
-      'Report Threat',
-      `Submit evidence for this ${result?.displayType || 'threat'} to help protect the community.`,
-      [
-        {
-          text: 'Proceed to Report',
-          onPress: () => {
-            navigation.navigate('Reports', {
-              screen: 'CreateReport',
-              params: { prefilledScanId: result?.id, threatTitle: result?.title },
-            });
-          },
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+    navigation.navigate('ReportScreen', {
+      threatTitle: result?.title || result?.heroTitle || 'Unknown Threat',
+      threatType: result?.displayType || 'Threat',
+      threatUrl: result?.url || null,
+      source: 'ScanResult',
+    });
   };
 
   const handleScanAnother = () => {

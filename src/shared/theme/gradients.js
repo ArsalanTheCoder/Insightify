@@ -23,4 +23,9 @@ export const gradients = {
     start: { x: 0, y: 0.5 },
     end: { x: 1, y: 0.5 },
   },
+  primary: {
+    colors: ['#245BFF', '#A63DFF'],
+    start: { x: 0, y: 0.5 },
+    end: { x: 1, y: 0.5 },
+  },
 };

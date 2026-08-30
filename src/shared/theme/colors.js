@@ -38,6 +38,13 @@ export const semantic = {
   dangerSoft: '#FFF0F1',
   info: '#3B82F6',
   infoSoft: '#EDF5FF',
+  // Semantic aliases for Quiz and Learning
+  correct: '#20B86B',
+  correctSoft: '#E9F9F1',
+  error: '#EF4444',
+  errorSoft: '#FFF0F1',
+  xp: '#F59E0B',
+  xpSoft: '#FFF7E6',
 };
 
 // ─────────────────────────────────────────────

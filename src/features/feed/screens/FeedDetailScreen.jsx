@@ -23,7 +23,6 @@ import {
   Share,
   ActivityIndicator,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -73,22 +72,12 @@ export default function FeedDetailScreen() {
   };
 
   const handleReportThreat = () => {
-    Alert.alert(
-      'Report Threat',
-      `Submit evidence or report an active variation of "${threat?.title || 'this threat'}".`,
-      [
-        {
-          text: 'Proceed to Report',
-          onPress: () => {
-            navigation.navigate('Reports', {
-              screen: 'CreateReport',
-              params: { prefilledThreatId: threat?.id, threatTitle: threat?.title },
-            });
-          },
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+    navigation.navigate('ReportScreen', {
+      threatTitle: threat?.title || 'Unknown Threat',
+      threatType: threat?.type || threat?.category || 'Threat',
+      threatUrl: threat?.url || threat?.link || null,
+      source: 'Feed',
+    });
   };
 
   if (isLoading && !threat) {

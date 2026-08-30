@@ -3,11 +3,12 @@
  *
  * Settings and preferences screen:
  * Account info, Privacy & Security, Notifications, App Experience, Support & Legal, and Logout.
+ * Features functional Logout with custom Confirmation Modal transitioning to Auth/Login stack.
  *
  * AGENTS.md & docs/RULES.md
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -20,6 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AuthContext } from '../../../context/AuthContext';
+import { useAuthStore } from '../../auth/store/authStore';
 import { useTheme } from '../../../shared/hooks/useTheme';
 import { useResponsive } from '../../../shared/utils/responsive';
 import { useProfile } from '../hooks/useProfile';
@@ -27,6 +29,7 @@ import { useSettings } from '../hooks/useSettings';
 import ScreenContainer from '../../../shared/components/ScreenContainer';
 import SettingToggleRow from '../components/SettingToggleRow';
 import SettingLinkRow from '../components/SettingLinkRow';
+import LogoutConfirmationModal from '../components/LogoutConfirmationModal';
 
 export default function SettingsScreen() {
   const navigation = useNavigation();
@@ -34,9 +37,12 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { scaleFont } = useResponsive();
 
-  const { logout } = useContext(AuthContext);
+  const { logout: contextLogout } = useContext(AuthContext);
+  const { logout: authStoreLogout } = useAuthStore();
   const { profile } = useProfile();
   const { settings, toggle } = useSettings();
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const avatarSource =
     typeof profile?.avatar === 'number'
@@ -47,23 +53,18 @@ export default function SettingsScreen() {
       ? { uri: profile.avatar }
       : null;
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out of Insightify?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: async () => {
-            if (logout) {
-              await logout();
-            }
-          },
-        },
-      ]
-    );
+  const handleLogoutPress = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setShowLogoutModal(false);
+    // 1. Reset auth store state (triggers RootNavigator to switch to Auth/Login screen)
+    authStoreLogout();
+    // 2. Clear context / storage
+    if (contextLogout) {
+      await contextLogout();
+    }
   };
 
   const bottomScrollPadding = (insets.bottom || 8) + 95;
@@ -292,9 +293,9 @@ export default function SettingsScreen() {
         />
       </View>
 
-      {/* 6. Logout Card */}
+      {/* 6. Logout Row */}
       <TouchableOpacity
-        onPress={handleLogout}
+        onPress={handleLogoutPress}
         activeOpacity={0.8}
         style={[
           styles.logoutCard,
@@ -312,6 +313,13 @@ export default function SettingsScreen() {
           Log Out
         </Text>
       </TouchableOpacity>
+
+      {/* 7. Logout Confirmation Dialog */}
+      <LogoutConfirmationModal
+        visible={showLogoutModal}
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </ScreenContainer>
   );
 }
