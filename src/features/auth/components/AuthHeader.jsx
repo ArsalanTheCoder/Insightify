@@ -19,7 +19,8 @@ export default function AuthHeader({ title, subtitle, style }) {
   const { colors, typography, spacing } = useTheme();
   const { moderateScale, scaleFont, isSmallDevice } = useResponsive();
 
-  const logoSize = moderateScale(isSmallDevice ? 74 : 86, 0.4);
+  // Prominently sized responsive brand logo badge
+  const logoSize = moderateScale(isSmallDevice ? 86 : 98, 0.4);
 
   return (
     <View style={[styles.container, style]}>
@@ -33,8 +34,8 @@ export default function AuthHeader({ title, subtitle, style }) {
         />
       </View>
 
-      {/* Brand Name */}
-      <Text style={[typography.h3, styles.brandName, { fontSize: scaleFont(18, 0.3) }]}>
+      {/* Prominent Brand Name */}
+      <Text style={[typography.h2, styles.brandName, { fontSize: scaleFont(21, 0.3) }]}>
         <Text style={{ color: colors.textPrimary }}>Insight</Text>
         <Text style={{ color: colors.primary }}>ify</Text>
       </Text>
@@ -56,9 +57,9 @@ export default function AuthHeader({ title, subtitle, style }) {
       {subtitle ? (
         <Text
           style={[
-            typography.bodySmall,
+            typography.body,
             styles.subtitle,
-            { color: colors.textSecondary, marginTop: 4, fontSize: scaleFont(13, 0.3) },
+            { color: colors.textSecondary, marginTop: 4, fontSize: scaleFont(14, 0.3) },
           ]}
         >
           {subtitle}
@@ -71,7 +72,7 @@ export default function AuthHeader({ title, subtitle, style }) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 16,
   },
   logoWrapper: {
     alignItems: 'center',
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   brandName: {
-    fontWeight: '600',
+    fontWeight: '800',
     letterSpacing: 0.5,
   },
   title: {
@@ -92,5 +93,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'center',
+    fontWeight: '500',
   },
 });

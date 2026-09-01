@@ -2,7 +2,7 @@
  * Insightify — ScanInputCard (Component)
  *
  * Dedicated input area for all 5 scan modes:
- * - Text & Email: Multiline text input with live 0/5000 character counter (no paperclip).
+ * - Text & Email: Multiline text input with live 0/5000 character counter (clean borderless layout).
  * - Image, Video & Audio: Interactive tap-to-pick zone and local media preview state.
  *
  * docs/RFC/RFC-004-F-detection-and-scan-history.md section 5
@@ -100,17 +100,16 @@ export default function ScanInputCard({
               styles.textInput,
               {
                 color: colors.textPrimary,
-                fontSize: scaleFont(13.5, 0.3),
+                fontSize: scaleFont(14, 0.3),
               },
             ]}
             textAlignVertical="top"
             maxLength={5000}
           />
 
-          {/* Dynamic 0/5000 Character Counter */}
-          <View style={[styles.bottomBar, { borderTopColor: colors.divider }]}>
-            <View />
-            <Text style={[typography.caption, styles.counterText, { color: colors.textTertiary }]}>
+          {/* Dynamic 0/5000 Character Counter (clean, no top divider line) */}
+          <View style={styles.counterRow}>
+            <Text style={[typography.caption, styles.counterText, { color: colors.textTertiary, fontSize: scaleFont(11.5, 0.3) }]}>
               {value.length}/5000
             </Text>
           </View>
@@ -228,29 +227,28 @@ const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
     paddingHorizontal: 14,
-    paddingTop: 12,
+    paddingTop: 14,
     paddingBottom: 10,
     elevation: 2,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
-    minHeight: 120,
-    justifyContent: 'center',
+    minHeight: 140,
+    justifyContent: 'space-between',
   },
   textInput: {
-    minHeight: 85,
-    maxHeight: 135,
+    minHeight: 100,
+    maxHeight: 160,
     padding: 0,
-    lineHeight: 20,
+    lineHeight: 21,
   },
-  bottomBar: {
+  counterRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    marginTop: 4,
+    justifyContent: 'flex-end',
+    paddingTop: 4,
+    paddingBottom: 2,
   },
   counterText: {
     fontWeight: '600',
@@ -258,7 +256,7 @@ const styles = StyleSheet.create({
   dropzone: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 22,
     paddingHorizontal: 12,
     borderRadius: 12,
     borderWidth: 1,
@@ -266,9 +264,9 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   dropzoneIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -292,8 +290,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   imagePreviewWrapper: {
-    width: 54,
-    height: 54,
+    width: 56,
+    height: 56,
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
@@ -305,8 +303,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   mediaIconBox: {
-    width: 54,
-    height: 54,
+    width: 56,
+    height: 56,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',

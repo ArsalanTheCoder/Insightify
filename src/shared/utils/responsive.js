@@ -16,6 +16,13 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const BASELINE_WIDTH = 375;
 
 /**
+ * Clamps a number between a minimum and maximum value.
+ */
+export function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+/**
  * Width percentage of screen
  */
 export function wp(percentage) {
@@ -50,9 +57,10 @@ export function moderateScale(size, factor = 0.5) {
 /**
  * Smart font scaling that clamps extreme device font scale settings
  */
-export function scaleFont(size, factor = 0.35) {
+export function scaleFont(size, factor = 0.35, minScale = 0.85, maxScale = 1.3) {
   const newSize = size + (scale(size) - size) * factor;
-  return Math.round(PixelRatio.roundToNearestPixel(newSize));
+  const clamped = clamp(newSize, size * minScale, size * maxScale);
+  return Math.round(PixelRatio.roundToNearestPixel(clamped));
 }
 
 /**
@@ -65,14 +73,21 @@ export function useResponsive() {
   const isSmallDevice = width < 360;
   const isMediumDevice = width >= 360 && width < 412;
   const isLargeDevice = width >= 412;
+  const isShortDevice = height < 700;
+  const isTallDevice = height >= 850;
 
   const dynamicWp = (percentage) => Math.round((percentage * width) / 100);
   const dynamicHp = (percentage) => Math.round((percentage * height) / 100);
   const dynamicScale = (size) => (width / BASELINE_WIDTH) * size;
   const dynamicModerateScale = (size, factor = 0.5) =>
     Math.round(size + (dynamicScale(size) - size) * factor);
-  const dynamicScaleFont = (size, factor = 0.35) =>
-    Math.round(PixelRatio.roundToNearestPixel(size + (dynamicScale(size) - size) * factor));
+  const dynamicScaleFont = (size, factor = 0.35, minScale = 0.85, maxScale = 1.3) => {
+    const raw = size + (dynamicScale(size) - size) * factor;
+    const clamped = clamp(raw, size * minScale, size * maxScale);
+    return Math.round(PixelRatio.roundToNearestPixel(clamped));
+  };
+
+  const getBottomPadding = (extra = 0) => (insets.bottom || 0) + 85 + extra;
 
   return {
     width,
@@ -81,10 +96,14 @@ export function useResponsive() {
     isSmallDevice,
     isMediumDevice,
     isLargeDevice,
+    isShortDevice,
+    isTallDevice,
     wp: dynamicWp,
     hp: dynamicHp,
     scale: dynamicScale,
     moderateScale: dynamicModerateScale,
     scaleFont: dynamicScaleFont,
+    getBottomPadding,
+    clamp,
   };
 }

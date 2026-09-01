@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../shared/hooks/useTheme';
+import { useResponsive } from '../../../shared/utils/responsive';
 import {
   validateRequired,
   validateEmail,
@@ -35,6 +36,7 @@ import TrustBadge from '../components/TrustBadge';
 export default function RegisterScreen() {
   const navigation = useNavigation();
   const { colors, typography, spacing } = useTheme();
+  const { scaleFont } = useResponsive();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -88,7 +90,7 @@ export default function RegisterScreen() {
       {/* Back Navigation */}
       <ScreenHeader onBack={() => navigation.goBack()} />
 
-      {/* Rebalanced Brand Header */}
+      {/* Rebalanced Brand Header with enlarged badge */}
       <AuthHeader
         title="Create your account"
         subtitle="Join Insightify and stay safe online."
@@ -165,18 +167,29 @@ export default function RegisterScreen() {
         />
       </View>
 
-      {/* Footer: Return to Login */}
+      {/* Footer: Return to Login (larger and easily readable) */}
       <View style={styles.footer}>
-        <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
+        <Text
+          style={[
+            typography.body,
+            { color: colors.textSecondary, fontSize: scaleFont(14.5, 0.3) },
+          ]}
+        >
           Already have an account?{' '}
         </Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           accessibilityRole="button"
           accessibilityLabel="Go to Login"
         >
-          <Text style={[typography.bodySmall, styles.loginLink, { color: colors.primary }]}>
+          <Text
+            style={[
+              typography.body,
+              styles.loginLink,
+              { color: colors.primary, fontSize: scaleFont(14.5, 0.3) },
+            ]}
+          >
             Login
           </Text>
         </TouchableOpacity>
@@ -195,7 +208,7 @@ const styles = StyleSheet.create({
   },
   authHeader: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 18,
   },
   form: {
     width: '100%',

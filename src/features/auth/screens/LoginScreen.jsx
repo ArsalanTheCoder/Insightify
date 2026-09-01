@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../shared/hooks/useTheme';
+import { useResponsive } from '../../../shared/utils/responsive';
 import { useAuthStore } from '../store/authStore';
 import { validateEmail, validatePassword } from '../../../shared/validation/validators';
 import ScreenContainer from '../../../shared/components/ScreenContainer';
@@ -31,6 +32,7 @@ import SocialAuthButtons from '../components/SocialAuthButtons';
 export default function LoginScreen() {
   const navigation = useNavigation();
   const { colors, typography, spacing } = useTheme();
+  const { scaleFont } = useResponsive();
   const login = useAuthStore((state) => state.login);
 
   const [email, setEmail] = useState('');
@@ -84,7 +86,7 @@ export default function LoginScreen() {
         <ScreenHeader onBack={() => navigation.goBack()} />
       )}
 
-      {/* Rebalanced Brand Header with enlarged badge */}
+      {/* Rebalanced Brand Header with enlarged badge & prominent name */}
       <AuthHeader subtitle="Welcome back!" style={styles.authHeader} />
 
       {/* Form Fields */}
@@ -117,15 +119,21 @@ export default function LoginScreen() {
           style={{ marginBottom: spacing.xs }}
         />
 
-        {/* Forgot Password Link */}
+        {/* Forgot Password Link (comfortably readable & tappable) */}
         <TouchableOpacity
           onPress={() => navigation.navigate('ForgotPassword')}
           style={styles.forgotPassword}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           accessibilityRole="button"
           accessibilityLabel="Forgot password?"
         >
-          <Text style={[typography.caption, styles.forgotPasswordText, { color: colors.primary }]}>
+          <Text
+            style={[
+              typography.bodySmall,
+              styles.forgotPasswordText,
+              { color: colors.primary, fontSize: scaleFont(13.5, 0.3) },
+            ]}
+          >
             Forgot password?
           </Text>
         </TouchableOpacity>
@@ -145,18 +153,29 @@ export default function LoginScreen() {
         />
       </View>
 
-      {/* Footer: Register Link */}
+      {/* Footer: Register Link (larger and easily readable) */}
       <View style={styles.footer}>
-        <Text style={[typography.bodySmall, { color: colors.textSecondary }]}>
+        <Text
+          style={[
+            typography.body,
+            { color: colors.textSecondary, fontSize: scaleFont(14.5, 0.3) },
+          ]}
+        >
           Don't have an account?{' '}
         </Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('Register')}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           accessibilityRole="button"
           accessibilityLabel="Go to Register"
         >
-          <Text style={[typography.bodySmall, styles.registerLink, { color: colors.primary }]}>
+          <Text
+            style={[
+              typography.body,
+              styles.registerLink,
+              { color: colors.primary, fontSize: scaleFont(14.5, 0.3) },
+            ]}
+          >
             Register
           </Text>
         </TouchableOpacity>
@@ -170,25 +189,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 16,
+    paddingTop: 12,
     paddingBottom: 28,
     justifyContent: 'center',
     flexGrow: 1,
   },
   authHeader: {
-    marginTop: 8,
-    marginBottom: 20,
+    marginTop: 4,
+    marginBottom: 18,
   },
   form: {
     width: '100%',
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginBottom: 22,
-    marginTop: 4,
+    marginBottom: 20,
+    marginTop: 6,
+    paddingVertical: 2,
   },
   forgotPasswordText: {
-    fontWeight: '500',
+    fontWeight: '600',
   },
   loginButton: {
     width: '100%',
@@ -198,7 +218,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 28,
+    marginTop: 26,
     paddingBottom: 12,
   },
   registerLink: {
