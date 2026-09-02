@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/accessibility_description"
-    android:accessibilityEventTypes="typeNotificationStateChanged|typeWindowContentChanged"
-    android:accessibilityFeedbackType="feedbackGeneric"
-    android:notificationTimeout="500"
-    android:canRetrieveWindowContent="true"
-    android:packageNames="com.whatsapp,com.whatsapp.w4b,org.telegram.messenger,com.instagram.android,com.google.android.apps.messaging,com.android.mms"
-    />
