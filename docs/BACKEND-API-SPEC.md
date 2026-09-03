@@ -1128,7 +1128,7 @@ Leaderboard Scopes:
 **Frontend Reference:** `AchievementsScreen.jsx`, `profileApi.js`
 
 ### 13.1 Strict Separation of Styling vs Semantic Data
-The backend **must not** return UI colors or styling tokens (`iconColor`, `bg`, `pillBg`, `pillTextColor`). The backend returns semantic properties; the frontend design system maps them to theme colors.
+The backend **must not** return UI-specific fields such as icon names (`iconName`, `icon`), color keys (`iconColor`, `colorKey`, `bg`, `pillBg`, `pillTextColor`), or any visual styling tokens. The backend returns **semantic properties only**; the frontend design system maps `achievementType` to the appropriate icon, color, and visual treatment through its centralized theme.
 
 ### 13.2 Get User Achievements
 - **Screens:** `AchievementsScreen.jsx`, `ProfileScreen.jsx`
@@ -1144,9 +1144,9 @@ The backend **must not** return UI colors or styling tokens (`iconColor`, `bg`, 
       "id": "a1",
       "title": "Scam Spotter",
       "description": "Detect 10 scams",
+      "achievementType": "detection",
       "points": 50,
       "level": "Level 3",
-      "iconName": "shield-checkmark",
       "unlocked": true,
       "unlockedAt": "2025-05-24T10:00:00Z",
       "currentProgress": 10,
@@ -1156,9 +1156,9 @@ The backend **must not** return UI colors or styling tokens (`iconColor`, `bg`, 
       "id": "a5",
       "title": "Phishing Fighter",
       "description": "Report 10 phishing attempts",
+      "achievementType": "reporting",
       "points": 50,
       "level": "Level 2",
-      "iconName": "shield",
       "unlocked": false,
       "unlockedAt": null,
       "currentProgress": 4,
@@ -1166,6 +1166,7 @@ The backend **must not** return UI colors or styling tokens (`iconColor`, `bg`, 
     }
   ]
   ```
+- **`achievementType` values:** Semantic category identifiers such as `detection`, `reporting`, `quiz`, `community`, `streak`, `verification`. The frontend maps these to icons and badge colors through the design system.
 
 ---
 
@@ -1173,20 +1174,26 @@ The backend **must not** return UI colors or styling tokens (`iconColor`, `bg`, 
 
 **Frontend Reference:** `ChampionScreen.jsx`
 
-### 14.1 Get Public Guardian Profile
+### 14.1 Terminology Alignment with Leaderboard
+- **Period values** use the same machine-readable format as the Leaderboard API: `daily` | `monthly` | `all_time`.
+- **Score** represents **Awareness Points (XP)**, consistent with §12.1.
+- Frontend display labels (e.g. `Daily`, `Monthly`, `All Time`) are mapped by the frontend, not returned by the backend.
+
+### 14.2 Get Public Guardian Profile
 - **Screen:** `ChampionScreen.jsx`
 - **Operation:** Retrieve public statistics, level, and verification record for a ranked guardian.
 - **Method:** `GET`
 - **Endpoint:** `/api/v1/guardians/{userId}` (`TBD`)
 - **Authentication:** `Bearer Token` (`TBD — access policy verification required`)
+- **Query Parameters:** `period` (`daily` | `monthly` | `all_time`) — selects which leaderboard context to display.
 - **Success Response (`200 OK`):**
   ```json
   {
     "id": "usr_002",
     "name": "Hasan Sajjad",
     "rank": 1,
-    "scope": "Daily",
-    "score": 1800,
+    "period": "daily",
+    "awarenessPoints": 1800,
     "avatar": "https://cdn.insightify.app/avatars/hasan.jpg",
     "level": 7,
     "nextLevel": 8,
@@ -1200,6 +1207,7 @@ The backend **must not** return UI colors or styling tokens (`iconColor`, `bg`, 
     "todayDelta": 140
   }
   ```
+- *(Note: `awarenessPoints` is semantically identical to `score` in the Leaderboard API. Both represent XP. The backend may unify them under a single field name during contract finalization.)*
 
 ---
 
@@ -1358,7 +1366,7 @@ interface ThreatFeedItem {
 
 ## 20. Frontend → Backend Flow Diagrams
 
-### 20.1 Authentication & Password Recovery Deep-Link Flow
+### 20.1 Authentication and Password Recovery Deep-Link Flow
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1368,39 +1376,39 @@ sequenceDiagram
     participant API as FastAPI Backend
     participant DB as PostgreSQL DB
 
-    alt Email & Password Login
-        User->>App: Enter Email & Password
+    alt Email and Password Login
+        User->>App: Enter email and password
         App->>API: POST /api/v1/auth/login
-        API->>DB: Verify credentials & generate tokens
-        DB-->>API: User Record + JWT Tokens
-        API-->>App: 200 OK (User + Tokens)
+        API->>DB: Verify credentials and generate tokens
+        DB-->>API: User record and JWT tokens
+        API-->>App: 200 OK with User and Tokens
     else Google OAuth Sign-In
-        User->>App: Tap "Continue with Google"
-        App->>Google: Launch Google OAuth Picker
+        User->>App: Tap Continue with Google
+        App->>Google: Launch Google OAuth picker
         Google-->>App: Return Google idToken
-        App->>API: POST /api/v1/auth/google { idToken }
-        API->>API: Verify Google idToken & extract profile
+        App->>API: POST /api/v1/auth/google with idToken
+        API->>API: Verify idToken and extract profile
         API->>DB: Upsert user record
-        API-->>App: 200 OK (User + Tokens)
+        API-->>App: 200 OK with User and Tokens
     end
-    App->>App: Securely store session & route to Home
+    App->>App: Store session securely and route to Home
 
     opt Password Reset Deep-Link Flow
-        User->>App: Enter email in ForgotPasswordScreen
-        App->>API: POST /api/v1/auth/forgot-password { email }
-        API-->>User: Sends Email with link: insightify.app/reset-password?token=XYZ
+        User->>App: Enter email on ForgotPasswordScreen
+        App->>API: POST /api/v1/auth/forgot-password with email
+        API-->>User: Send reset email with deep link
         App->>App: Route to ResetLinkSentScreen
-        User->>App: Taps email deep link
-        App->>App: OS opens ResetPasswordScreen(token="XYZ")
-        User->>App: Enters new password & submits
-        App->>API: POST /api/v1/auth/reset-password { resetToken, newPassword }
-        API->>DB: Validate token & update password hash
-        API-->>App: 200 OK { success: true }
-        App->>App: Route to PasswordUpdatedScreen -> Continue to Login
+        User->>App: Tap deep link from email
+        App->>App: Open ResetPasswordScreen with token
+        User->>App: Enter new password and submit
+        App->>API: POST /api/v1/auth/reset-password with token and password
+        API->>DB: Validate token and update password hash
+        API-->>App: 200 OK success
+        App->>App: Route to PasswordUpdatedScreen
     end
 ```
 
-### 20.2 AI Detection & Scan Analysis Flow
+### 20.2 AI Detection and Scan Analysis Flow
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1410,25 +1418,25 @@ sequenceDiagram
     participant AI as AI Analysis Engine
     participant DB as Scan History DB
 
-    User->>App: Selects mode (Text / Email / Image / Video / Audio)
-    User->>App: Inputs text or attaches file
-    User->>App: Tap "Analyze Now →"
-    App->>API: POST /api/v1/detect/analyze (Multipart / JSON)
-    API->>AI: Feature extraction & threat intelligence inference
-    AI-->>API: Risk level, confidence, signals, recommendations
+    User->>App: Select scan mode
+    User->>App: Input text or attach file
+    User->>App: Tap Analyze Now
+    App->>API: POST /api/v1/detect/analyze
+    API->>AI: Extract features and run threat inference
+    AI-->>API: Risk level and confidence and signals
     API->>DB: Insert scan record into user history
-    API-->>App: 200 OK (ScanResultResponse)
+    API-->>App: 200 OK with ScanResultResponse
     App->>App: Render ScanResultScreen
-    opt User Submits Report
-        User->>App: Tap "Report Threat"
-        App->>App: Route to ReportScreen(sourceContext="scan_result")
-        User->>App: Selects reason, details & evidence
+    opt User submits report
+        User->>App: Tap Report Threat
+        App->>App: Route to ReportScreen
+        User->>App: Select reason and attach evidence
         App->>API: POST /api/v1/reports
-        API-->>App: 201 Created (Report Confirmation)
+        API-->>App: 201 Created with report confirmation
     end
 ```
 
-### 20.3 Community Threat Feed & Reporting Flow
+### 20.3 Community Threat Feed and Reporting Flow
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1437,29 +1445,29 @@ sequenceDiagram
     participant API as FastAPI Backend
     participant DB as Threat DB
 
-    User->>App: Opens Feed (Selects Tab)
-    alt Nearby Tab
-        App->>API: GET /api/v1/feed?tab=nearby&lat=...&lng=...&country=PK
-    else Other Tabs
-        App->>API: GET /api/v1/feed?tab=trending&category=all
+    User->>App: Open Feed and select tab
+    alt Nearby Tab selected
+        App->>API: GET /api/v1/feed with tab nearby and location
+    else Other tab selected
+        App->>API: GET /api/v1/feed with tab and category
     end
-    API->>DB: Query filtered threat posts with multimodal media
-    DB-->>API: Threat post records
-    API-->>App: 200 OK (Paginated feed list)
-    User->>App: Selects threat post
-    App->>API: GET /api/v1/feed/{threatId}
-    API-->>App: 200 OK (Full threat dossier + media array)
+    API->>DB: Query filtered threat posts
+    DB-->>API: Threat post records with media
+    API-->>App: 200 OK with paginated feed list
+    User->>App: Select threat post
+    App->>API: GET /api/v1/feed/threatId
+    API-->>App: 200 OK with full threat dossier
     App->>App: Render FeedDetailScreen
     opt Report from Feed Detail
         User->>App: Tap Report Incident
         App->>App: Route to ReportScreen
-        User->>App: Submits report
+        User->>App: Submit report
         App->>API: POST /api/v1/reports
         API-->>App: 201 Created
     end
 ```
 
-### 20.4 Quiz & Learning Flow
+### 20.4 Quiz and Learning Flow
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1468,20 +1476,22 @@ sequenceDiagram
     participant API as FastAPI Backend
     participant Gamify as XP Engine
 
-    User->>App: Opens Quiz Dashboard
-    App->>API: GET /api/v1/quiz/categories & GET /api/v1/quiz/daily-challenge
-    API-->>App: 200 OK (Dashboard learning data)
-    User->>App: Selects "Phishing Basics"
-    App->>API: GET /api/v1/quiz/phishing-basics/questions
-    API-->>App: 200 OK (Questions 1 to 5 + options + explanations)
-    loop Questions 1 through 5
-        User->>App: Selects option & views explanation
+    User->>App: Open Quiz Dashboard
+    App->>API: GET /api/v1/quiz/categories
+    API-->>App: 200 OK with categories
+    App->>API: GET /api/v1/quiz/daily-challenge
+    API-->>App: 200 OK with daily challenge
+    User->>App: Select quiz
+    App->>API: GET /api/v1/quiz/quizId/questions
+    API-->>App: 200 OK with questions and options
+    loop Each question
+        User->>App: Select answer option
     end
-    App->>API: POST /api/v1/quiz/phishing-basics/attempt { answers }
-    API->>Gamify: Validate answers, calculate score, award XP & streak
-    Gamify-->>API: Updated user XP, streak, and level
-    API-->>App: 200 OK (Score, XP, Streak, Level result)
-    App->>App: Render QuizResultsScreen & ReviewAnswersScreen
+    App->>API: POST /api/v1/quiz/quizId/attempt with answers
+    API->>Gamify: Validate answers and calculate score
+    Gamify-->>API: XP earned and streak and level
+    API-->>App: 200 OK with score and XP result
+    App->>App: Render QuizResultsScreen
 ```
 
 ---
