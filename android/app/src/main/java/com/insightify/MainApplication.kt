@@ -17,13 +17,7 @@ class MainApplication : Application(), ReactApplication {
     object : DefaultReactNativeHost(this) {
 
       override fun getPackages(): List<ReactPackage> =
-        PackageList(this).packages.apply {
-          // 🔔 Notification → JS bridge
-          add(NotificationPackage())
-
-          // 🛡️ Accessibility → JS bridge
-          add(AccessibilityPackage())
-        }
+        PackageList(this).packages
 
       override fun getJSMainModuleName(): String = "index"
 
